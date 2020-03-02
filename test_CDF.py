@@ -24,17 +24,22 @@ p_cavit = 1. * np.arange(len(X[148])) / (len(X[148]) - 1)
 
 # plot the sorted data:
 fig = plt.figure()
+fig.suptitle('Cumulative distribution function, CDF', y=1.02, fontsize=15)
+
 ax1 = fig.add_subplot(121)
 ax1.plot(p_no_cavit, norm_cdf_no_cavit)
 plt.title('No Cavitation')
 ax1.set_xlabel('$p$')
 ax1.set_ylabel('$x$')
+ax1.set_ylim(-3, 3)
 
 ax2 = fig.add_subplot(122)
 ax2.plot(p_cavit, norm_cdf_cavit)
 plt.title('Cavitation')
 ax2.set_xlabel('$p$')
 ax2.set_ylabel('$x$')
+ax2.label_outer()
+
 
 print('CDF pas de cavitation : '+ str(max(norm_cdf_no_cavit)))
 print('CDF cavitation : ' + str(max(norm_cdf_cavit)))
