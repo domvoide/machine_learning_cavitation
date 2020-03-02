@@ -16,12 +16,25 @@ infile.close()
 
 X = df.Micro
 
-norm_cdf_no_cavit = scipy.stats.norm.cdf(X[0])
-norm_cdf_cavit = scipy.stats.norm.cdf(X[148])
+norm_cdf_no_cavit = np.sort(X[0])
+norm_cdf_cavit = np.sort(X[148])
 
-# plot the cdf
-sns.lineplot(x=X[0], y=norm_cdf_no_cavit)
-plt.show()
+p_no_cavit = 1. * np.arange(len(X[0])) / (len(X[0]) - 1)
+p_cavit = 1. * np.arange(len(X[148])) / (len(X[148]) - 1)
 
-sns.lineplot(x=X[148], y=norm_cdf_cavit)
-plt.show()
+# plot the sorted data:
+fig = plt.figure()
+ax1 = fig.add_subplot(121)
+ax1.plot(p_no_cavit, norm_cdf_no_cavit)
+plt.title('No Cavitation')
+ax1.set_xlabel('$p$')
+ax1.set_ylabel('$x$')
+
+ax2 = fig.add_subplot(122)
+ax2.plot(p_cavit, norm_cdf_cavit)
+plt.title('Cavitation')
+ax2.set_xlabel('$p$')
+ax2.set_ylabel('$x$')
+
+print('CDF pas de cavitation : '+ str(max(norm_cdf_no_cavit)))
+print('CDF cavitation : ' + str(max(norm_cdf_cavit)))
