@@ -14,8 +14,7 @@ path1 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain
 path2 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1044_002.tdms'
 path3 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1045_003.tdms'
 paths = [path1, path2, path3]
-properties, names, time,  acc_X, acc_Y, acc_Z, micro, uni, hydro, brut = {},
-{}, {}, {}, {}, {}, {}, {}, {}, {}
+properties, names, time,  acc_X, acc_Y, acc_Z, micro, uni, hydro, brut = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
 files = []
 for i in range(3):
     files.append(TdmsFile(paths[i]))

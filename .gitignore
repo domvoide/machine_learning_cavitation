@@ -1,4 +1,8 @@
-
-Datas/all_data.pckl
+.idea
+venv
+Datas
 *.pckl
 *.png
+*.pyc
+*.pyd
+*.dll
