@@ -21,10 +21,10 @@ norm_cdf_no_cavit = np.sort(X[0])
 norm_cdf_cavit = np.sort(X[322])
 
 p_no_cavit = np.linspace(0, 1, len(X[0]))
-p_cavit = np.linspace(0, 1, len (X[322]))
+p_cavit = np.linspace(0, 1, len(X[322]))
 
 # plot the sorted data:
-fig = plt.figure(figsize=(8,6))
+fig = plt.figure(figsize=(8, 6))
 fig.suptitle('Cumulative distribution function, CDF', y=1.02, fontsize=15)
 
 ax1 = fig.add_subplot(121)
@@ -45,13 +45,13 @@ ax2.set_ylim(-3, 3)
 ax2.label_outer()
 
 print('Numpy Order')
-print('CDF pas de cavitation : '+ str(max(norm_cdf_no_cavit)))
+print('CDF pas de cavitation : ' + str(max(norm_cdf_no_cavit)))
 print('CDF cavitation : ' + str(max(norm_cdf_cavit)))
 
 norm_cdf_no_cavit2 = scipy.stats.norm.cdf(X[0])
 norm_cdf_cavit2 = scipy.stats.norm.cdf(X[322])
 
-fig = plt.figure(figsize=(8,6))
+fig = plt.figure(figsize=(8, 6))
 fig.suptitle('CDF with scipy stats norm', y=1.02, fontsize=15)
 
 ax1 = fig.add_subplot(121)
@@ -73,5 +73,5 @@ ax2.label_outer()
 
 plt.show()
 print('Scipy stats norm CDF')
-print('CDF pas de cavitation : '+ str(max(norm_cdf_no_cavit2)))
+print('CDF pas de cavitation : ' + str(max(norm_cdf_no_cavit2)))
 print('CDF cavitation : ' + str(max(norm_cdf_cavit2)))
