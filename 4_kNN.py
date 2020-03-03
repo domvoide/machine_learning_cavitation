@@ -14,7 +14,7 @@ from sklearn import metrics
 from sklearn import neighbors
 from matplotlib import pyplot as plt
 
-#importation des features et des labels
+# importation des features et des labels
 filename = 'Short_1s_sample_0.9s_step'
 # read pickle file
 infile = open('Datas\\Pickle\\Features\\Features' + filename + '.pckl', 'rb')
@@ -34,7 +34,7 @@ X_train, X_test, y_train, y_test = train_test_split(X2, y, test_size=0.3) # 70% 
 knn = KNeighborsClassifier(n_neighbors=6, p=1)
 
 # Train the model using the training sets
-knn.fit(X_train,y_train)
+knn.fit(X_train, y_train)
 
 y_pred = knn.predict(X_test)
 error = 1 - knn.score(X_test, y_test)
@@ -42,11 +42,11 @@ print('Erreur: %f' % error)
 print("Accuracy:" + str(metrics.accuracy_score(y_test, y_pred)))
 
 errors = []
-for k in range(2,200):
+for k in range(2, 200):
     knn = neighbors.KNeighborsClassifier(k)
     errors.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
 indexmin = errors.index(min(errors)) + 2
-plt.plot(range(2,200), errors, 'o-')
+plt.plot(range(2, 200), errors, 'o-')
 plt.xlabel('Number of neighbors')
 plt.ylabel('Error')
 plt.show()
