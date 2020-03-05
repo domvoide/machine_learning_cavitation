@@ -10,7 +10,7 @@ from math import sqrt
 import statistics
 import pickle
 import pandas as pd
-from scipy import signal
+import scipy
 
 filename = 'Short_1s_sample_0.9s_step'
 # read pickle file
@@ -28,9 +28,14 @@ def variance(audio):
 
 
 def maxPSD(audio):
-    freqs, psd = signal.welch(audio)
+    freqs, psd = scipy.signal.welch(audio)
     maxPSD = max(psd)
     return maxPSD
+
+def maxCDF(audio):
+    cdf = scipy.stats.norm.cdf(audio)
+    maxCDF = max(cdf)
+    return maxCDF
 
 
 def fftfreq(audio, Fs):
@@ -40,7 +45,7 @@ def fftfreq(audio, Fs):
 
     yf = np.fft.fft(audio, NFFT)/L
     amp = 2 * abs(yf[1:NFFT//2+1])
-
+    
     # Déterminer les 10 peaks les plus importants
     freqmax_index = abs(np.argsort(-amp[100:NFFT//2])[:10]) # néglige les fréquences en dessous de 100 Hz
     freqmax = np.sort(freq[freqmax_index])[::-1]
@@ -50,6 +55,7 @@ def fftfreq(audio, Fs):
 RMS = []
 var = []
 PSD = []
+CDF = []
 fft0 = []
 fft1 = []
 fft2 = []
@@ -68,6 +74,7 @@ for i in range(len(df.Micro)):
     RMS.append(rms(df.Micro[i]))
     var.append(variance(df.Micro[i]))
     PSD.append(maxPSD(df.Micro[i]))
+    CDF.append(maxCDF(df.Micro[i]))
     fft_mat = fftfreq(df.Micro[i], Fs)
     fft0.append(fft_mat[0])
     fft1.append(fft_mat[1])
@@ -83,6 +90,7 @@ for i in range(len(df.Micro)):
 data = {'RMS': RMS,
         'Var': var,
         'PSD': PSD,
+        'CDF': CDF,
         'fft0': fft0,
         'fft1': fft1,
         'fft2': fft2,
