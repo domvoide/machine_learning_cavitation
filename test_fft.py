@@ -1,38 +1,38 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Feb 28 07:57:07 2020
 
-@author: voide
-"""
+import numpy as np 
+import matplotlib.pyplot as plt 
+import scipy.fftpack 
+from scipy.signal import find_peaks
+from scipy.signal import argrelextrema
 import pickle
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.signal import find_peaks_cwt
 
-infile = open('Datas\\Pickle\\Sampling\\Short_1s_sample_0.9s_step.pckl', 'rb')
-df = pickle.load(infile)
-infile.close()
+# Number of samplepoints 
 
-y = df.Micro[80]
-rate = 40000
-######################################################################
+N = 600 
 
-# FFT
+# sample spacing 
 
-L = len(y)
-NFFT = int(2 ** np.ceil(np.log2(abs(L))))
-Fs = rate
-freq = Fs / 2 * np.linspace(0,1,NFFT//2)
+T = 1.0 / 800.0 
+x = np.linspace(0.0, N*T, N) 
+y = np.sin(50.0 * 2.0*np.pi*x) + 0.5*np.sin(180.0 * 2.0*np.pi*x)
+yf = scipy.fftpack.fft(y) 
+xf = np.linspace(0.0, 1.0/(2.0*T), N//2) 
 
-yf = np.fft.fft(y, NFFT)/L
-amp = 2 * abs(yf[1:NFFT//2+1])
+fig = plt.figure()
+ax  = fig.add_subplot(211)
+ax.plot(x,y)
+ax1 = fig.add_subplot(212)
+ax1.plot(xf, 2.0/N * np.abs(yf[:N//2])) 
+ax1.label_outer()
+peaks, _ = find_peaks(yf, height=0.3)
 
-fig = plt.figure(figsize=(30,5))
-plt.plot(freq, amp)
-plt.title('FFT')
-plt.xlabel('Fréquence [Hz]')
-plt.ylabel('Amplitude [-]')
+freqmax_index = argrelextrema(yf[0:N//2], np.greater)[0]
 
-# Déterminer les 10 peak les plus importants
-freqmax_index = abs(np.argsort(-amp[100:NFFT//2])[:10])
-freqmax = np.sort(freq[freqmax_index])[::-1]
+freqmax = np.sort(xf[freqmax_index])[::-1]
+for i in freqmax:
+    print('Fréquences maximales : ' + str(i) + ' Hertz')
+# filename = 'Short_1s_sample_0.9s_step'
+# # read pickle file
+# infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
+# df = pickle.load(infile)
+# infile.close()
