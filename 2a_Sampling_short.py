@@ -4,6 +4,11 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import sounddevice as sd
 
+# Paramètres
+#############################################################################
+dt = 1  # durée de l'échantillon en secondes
+ti = 0.9  # durée de recouvrement en secondes (pas entre chaque échantillon)
+#############################################################################
 
 # importation du pickle contenant les 18 fichiers de données
 folder_path = 'Datas\\Pickle\\all_data.pckl'
