@@ -10,9 +10,12 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 df = pd.read_csv (r'data_acc_tri.csv', header=None)
-
-y = df[0][2400000:2800000]
+data_acc_tri = df[0]
+acc_tri = data_acc_tri - np.mean(data_acc_tri)
 del df
+
+y = data_acc_tri[2400000:2800000]
+
 
 # FFT
 
