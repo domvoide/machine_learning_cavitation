@@ -32,8 +32,7 @@ ax1.plot(xf, 2.0/N * np.abs(yf[:N//2]))
 ax1.label_outer()
 peaks, _ = find_peaks(yf, height=0.3)
 
-freqmax_index = argrelextrema(yf[0:N//2], np.greater)[0]
+freqmax_index = np.where(yf == max(yf[0:N//2]))
 
-freqmax = np.sort(xf[freqmax_index])[::-1]
-for i in freqmax:
-    print('Fréquences maximales : ' + str(i) + ' Hertz')
+freqmax = xf[freqmax_index]
+
