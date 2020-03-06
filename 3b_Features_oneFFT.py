@@ -84,9 +84,9 @@ data = {'RMS': RMS,
 X = pd.DataFrame(data)
 y = df.Cavit
 
-g = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'wb')
-pickle.dump((X, y), g)
-g.close()
+# g = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'wb')
+# pickle.dump((X, y), g)
+# g.close()
 t1 = datetime.now()
-deltat = (t1 - t0) / 1000
+deltat = (t1 - t0)
 print('Temps écoulé' + str(deltat))
