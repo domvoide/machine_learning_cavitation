@@ -113,5 +113,5 @@ g = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'wb')
 pickle.dump((X, y), g)
 g.close()
 t1 = datetime.now()
-deltat = (t1 - t0) / 1000
-print('Temps écoulé' + str(deltat))
+deltat = (t1 - t0)
+print('Temps écoulé : ' + str(deltat))
