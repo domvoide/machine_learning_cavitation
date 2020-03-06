@@ -34,5 +34,6 @@ plt.xlabel('Fréquence [Hz]')
 plt.ylabel('Amplitude [-]')
 
 # Déterminer les 10 peak les plus importants
-freqmax_index = abs(np.argsort(-amp[100:NFFT//2])[:10])
+# freqmax_index = abs(np.argsort(-amp[100:NFFT//2])[:10])
+freqmax_index = np.where(yf == max(yf[0:N//2]))
 freqmax = np.sort(freq[freqmax_index])[::-1]
