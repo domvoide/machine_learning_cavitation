@@ -10,8 +10,11 @@ from math import sqrt
 import statistics
 import pickle
 import pandas as pd
-import scipy
+from scipy import signal
+from scipy import stats
+from datetime import datetime
 
+t0 = datetime.now()
 filename = 'Short_1s_sample_0.9s_step'
 # read pickle file
 infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
@@ -28,13 +31,13 @@ def variance(audio):
 
 
 def maxPSD(audio):
-    freqs, psd = scipy.signal.welch(audio)
+    freqs, psd = signal.welch(audio)
     maxPSD = max(psd)
     return maxPSD
 
 def maxCDF(audio):
-    cdf = scipy.stats.norm.cdf(audio)
-    maxCDF = max(cdf)
+    # cdf = stats.norm.cdf(audio)
+    maxCDF = max(audio)
     return maxCDF
 
 
@@ -109,3 +112,6 @@ y = df.Cavit
 g = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'wb')
 pickle.dump((X, y), g)
 g.close()
+t1 = datetime.now()
+deltat = (t1 - t0) / 1000
+print('Temps écoulé' + str(deltat))
