@@ -24,7 +24,9 @@ infile.close()
 X = df[0]
 y = df[1]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3) # 70% training and 30% test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
+# 70% training and 30% test, random_state pour avoir toujours les mêmes données en train,
+# stratify = y pour avoir le même poucentage de label que les sets
 
 kmax = int(np.sqrt(len(y)))
 euclid = {'k': [], 'errortrain': [], 'errortest': []}
@@ -42,50 +44,44 @@ print('Erreur train: %f' % errortrain)
 print('Erreur test: %f' % errortest)
 print("Accuracy:" + str(metrics.accuracy_score(y_test, y_pred)))
 
+errorstrain = []
+errorstest = []
+print('\nMesure distance Euclidienne')
+for k in range(2, kmax):
+    knn = neighbors.KNeighborsClassifier(n_neighbors=k, p=2)
+    errorstrain.append(1 - knn.fit(X_train, y_train).score(X_train, y_train))
+    errorstest.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
+indexmin = errorstest.index(min(errorstest)) + 2
+Errormintrain = min(errorstrain)
+Errormintest = min(errorstest)
+plt.plot(range(2, kmax), errorstest, 'o-')
+plt.xlabel('Number of neighbors')
+plt.ylabel('Error')
+plt.show()
 
-for i in range(10):
-    errorstrain = []
-    errorstest = []
-    print('\nMesure distance Euclidienne')
-    for k in range(2, kmax):
-        knn = neighbors.KNeighborsClassifier(n_neighbors=k, p=2)
-        errorstrain.append(1 - knn.fit(X_train, y_train).score(X_train, y_train))
-        errorstest.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
-    indexmin = errorstest.index(min(errorstest)) + 2
-    Errormintrain = min(errorstrain)
-    Errormintest = min(errorstest)
-    # plt.plot(range(2, kmax), errorstest, 'o-')
-    # plt.xlabel('Number of neighbors')
-    # plt.ylabel('Error')
-    # plt.show()
-    
-    knn = neighbors.KNeighborsClassifier(indexmin)
-    print('Facteur k choisi : ' + str(indexmin))
-    print('Min erreur train: ' + str(min(errorstrain)))
-    print('Erreur test avec k choisi: ' + str(min(errorstest)))
-    euclid['k'].append(indexmin)
-    euclid['errortrain'].append(Errormintrain)
-    euclid['errortest'].append(Errormintest)
-    
-    print('\nMesure distance manhattan')
-    errorstrain = []
-    errorstest = []
-    for k in range(2, kmax):
-        knn = neighbors.KNeighborsClassifier(n_neighbors=k, p=1)
-        errorstrain.append(1 - knn.fit(X_train, y_train).score(X_train, y_train))
-        errorstest.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
-    indexmin = errorstest.index(min(errorstest)) + 2
-    Errormintrain = min(errorstrain)
-    Errormintest = min(errorstest)
-    # plt.plot(range(2, kmax), errorstest, 'o-')
-    # plt.xlabel('Number of neighbors')
-    # plt.ylabel('Error')
-    # plt.show()
-    
-    knn = neighbors.KNeighborsClassifier(indexmin)
-    print('Facteur k choisi : ' + str(indexmin))
-    print('Min erreur train: ' + str(min(errorstrain)))
-    print('Erreur test avec k choisi: ' + str(min(errorstest)))
-    manathan['k'].append(indexmin)
-    manathan['errortrain'].append(Errormintrain)
-    manathan['errortest'].append(Errormintest)
+knn = neighbors.KNeighborsClassifier(indexmin)
+print('Facteur k choisi : ' + str(indexmin))
+print('Min erreur train: ' + str(min(errorstrain)))
+print('Erreur test avec k choisi: ' + str(min(errorstest)))
+
+errorstrain = []
+errorstest = []
+print('\nMesure distance manhattan')
+
+for k in range(2, kmax):
+    knn = neighbors.KNeighborsClassifier(n_neighbors=k, p=1)
+    errorstrain.append(1 - knn.fit(X_train, y_train).score(X_train, y_train))
+    errorstest.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
+indexmin = errorstest.index(min(errorstest)) + 2
+Errormintrain = min(errorstrain)
+Errormintest = min(errorstest)
+plt.plot(range(2, kmax), errorstest, 'o-')
+plt.xlabel('Number of neighbors')
+plt.ylabel('Error')
+plt.show()
+
+knn = neighbors.KNeighborsClassifier(indexmin)
+print('Facteur k choisi : ' + str(indexmin))
+print('Min erreur train: ' + str(min(errorstrain)))
+print('Erreur test avec k choisi: ' + str(min(errorstest)))
+
