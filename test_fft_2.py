@@ -12,7 +12,7 @@ infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-y = df.Micro[2]
+y = df.Micro[0]
 Fs = 40000
 
 L = len(y)
@@ -32,12 +32,12 @@ ax1 = fig.add_subplot(212)
 ax1.semilogx(xf, 2.0/N * np.abs(yf[:N//2])) 
 ax1.label_outer()
 
-freqmax_index = argrelmax(yf[5:N//2])[0]
+freqmax_index = np.where(yf == max(yf[0:N//2]))
 
-freq = np.sort(xf[max(freqmax_index)])
-freqmax = max(freq)
+freq = xf[freqmax_index]
+# freqmax = max(freq)
 
-print('Fréquences maximales : ' + str(freqmax) + ' Hertz')
+# print('Fréquences maximales : ' + str(freqmax) + ' Hertz')
 
 
 # import numpy as np 
