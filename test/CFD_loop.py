@@ -25,6 +25,7 @@ no_cavit = []
 fig = plt.figure(figsize=(10,6))
 
 def plotCDF(i, color):
+    global xf
     audio = df.Micro[i]  # fichier audio brut
     Fs = 40000  # fréquence d'acquisition
     
@@ -59,7 +60,7 @@ def plotCDF(i, color):
         no_cavit.append(cumsumNorm)
     else:
         cavit.append(cumsumNorm)
-
+    
 
 for i in range(len(df.Micro)):
     if df.Cavit[i] == 0:
@@ -75,8 +76,12 @@ plt.ylabel('Density [-]')
 sumcavit=np.zeros(len(cavit[0]))
 for j in range(len(cavit)):
     sumcavit = sumcavit + cavit[j]
- 
-lenmicro = []   
-j = 0    
-for j in range(len(df.Micro)):
-    lenmicro.append(len(df.Micro[j]))
+sumcavit = sumcavit / len(cavit) 
+
+sumnocavit=np.zeros(len(no_cavit[0]))
+for j in range(len(no_cavit)):
+    sumnocavit = sumnocavit + no_cavit[j]
+sumnocavit = sumnocavit / len(no_cavit) 
+
+plt.plot(xf, sumcavit , color='black')
+plt.plot(xf, sumnocavit , color='white')
