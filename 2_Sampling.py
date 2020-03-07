@@ -60,14 +60,14 @@ for k in range(len(data['Micro'])):
     if len(data['Micro'][k]) != size:
         dellist.append(k)
         
-# dellist = dellist[::-1]  # inversion du sens de la liste
-# # Suppression des échantillons de mauvaise taille
-# for nb in dellist:
-#     print(nb)
-#     del data['Micro'][nb]
-#     del data['Cavit'][nb]
-#     del data['Alpha'][nb]
-#     del data['Sigma'][nb]
+dellist = dellist[::-1]  # inversion du sens de la liste
+# Suppression des échantillons de mauvaise taille
+for nb in dellist:
+    print(nb)
+    del data['Micro'][nb]
+    del data['Cavit'][nb]
+    del data['Alpha'][nb]
+    del data['Sigma'][nb]
 
 # transformation en dataframe et mise en forme pour compacter
 df = pd.DataFrame(data)
