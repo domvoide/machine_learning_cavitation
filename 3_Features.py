@@ -22,10 +22,6 @@ df = pickle.load(infile)
 infile.close()
 
 
-def rms(audio):
-    return sqrt(sum(n*n for n in audio)/len(audio))
-
-
 def variance(audio):
     return statistics.variance(audio)
 
@@ -55,7 +51,7 @@ def fftfreq(audio, Fs):
     return freqmax
 
 
-RMS = []
+
 var = []
 PSD = []
 CDF = []
@@ -74,9 +70,7 @@ Fs = 40000  # Fréquence
 
 
 for i in range(len(df.Micro)):
-    RMS.append(rms(df.Micro[i]))
     var.append(variance(df.Micro[i]))
-    PSD.append(maxPSD(df.Micro[i]))
     CDF.append(maxCDF(df.Micro[i]))
     fft_mat = fftfreq(df.Micro[i], Fs)
     fft0.append(fft_mat[0])
@@ -90,9 +84,7 @@ for i in range(len(df.Micro)):
     fft8.append(fft_mat[8])
     fft9.append(fft_mat[9])
 
-data = {'RMS': RMS,
-        'Var': var,
-        'PSD': PSD,
+data = {'Var': var,
         'CDF': CDF,
         'fft0': fft0,
         'fft1': fft1,
