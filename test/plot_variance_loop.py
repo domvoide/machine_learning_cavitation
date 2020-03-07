@@ -51,8 +51,8 @@ mean_no_cavit = np.mean(no_cavit)
 mean_cavit = np.mean(cavit)
 
 # plot des moyennes
-plt.scatter(mean_no_cavit, 0, c='black', marker='x', s=100)
-plt.scatter(mean_cavit, 1, c='black', marker='x', s=100)
+plt.scatter(mean_no_cavit, 0, c='black', edgecolor='white', marker='x', s=100)
+plt.scatter(mean_cavit, 1, c='black', edgecolor='white', marker='x', s=100)
 
 #affichage du temps écoulé
 t1 = datetime.now()
