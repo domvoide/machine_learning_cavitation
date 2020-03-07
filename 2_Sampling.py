@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 19 08:36:44 2020
+
+@author: dominiqu.voide
+
+Création d'échantillons de taille dt avec durée de recouvrement ti
+"""
+
 import io
 import pickle
 import pandas as pd
@@ -7,7 +16,7 @@ import sounddevice as sd
 # Paramètres
 #############################################################################
 dt = 1  # durée de l'échantillon en secondes
-ti = 0.9  # durée de recouvrement en secondes (pas entre chaque échantillon)
+ti = 0  # durée de recouvrement en secondes (pas entre chaque échantillon)
 #############################################################################
 
 # importation du pickle contenant les 18 fichiers de données
@@ -18,12 +27,6 @@ buf.close()
 del buf
 dataframe = dataframe.transpose()
 
-
-# fonction pour vérifier l'utilisation de la mémoire
-def memory_usage(df):
-    return round(df.memory_usage(deep=True) / 1024**2, 2)
-
-
 # creation d'une matrice plus compact pour commencer (plus rapide à travailler)
 df2 = dataframe[['Alpha', 'Sigma', 'Time', 'Micro', 'Cavit']].copy()
 del dataframe
@@ -31,18 +34,14 @@ del dataframe
 # Acquisition de la fréquence
 f = round(1 / (df2.Time[0][1]-df2.Time[0][0]), 1)
 
-
 # Création d'un dictionnaire vide pour les échantillons d'analyses
 data = {'Alpha': [],
         'Sigma': [],
         'Micro': [],
         'Cavit': []}
 
-dt = 1  # durée de l'échantillon en secondes
-ti = 0.9  # durée de recouvrement en secondes (pas entre chaque échantillon)
-
 size = int(dt * f)  # longueur de l'échantillon
-step = int(ti * f)  # écart entre le début de chaque échantillon
+step = int((1-ti) * f)  # écart entre le début de chaque échantillon
 
 # création des échantillons
 for j in range(18):
@@ -54,13 +53,27 @@ for j in range(18):
         data['Alpha'].append(df2.Alpha[j])
         data['Sigma'].append(df2.Sigma[j])
 
+
+# Création d'une liste des échantillons de la mauvaise taille
+dellist = []
+for k in range(len(data['Micro'])):
+    if len(data['Micro'][k]) != size:
+        dellist.append(k)
+        
+# dellist = dellist[::-1]  # inversion du sens de la liste
+# # Suppression des échantillons de mauvaise taille
+# for nb in dellist:
+#     print(nb)
+#     del data['Micro'][nb]
+#     del data['Cavit'][nb]
+#     del data['Alpha'][nb]
+#     del data['Sigma'][nb]
+
 # transformation en dataframe et mise en forme pour compacter
 df = pd.DataFrame(data)
 df.Cavit = df.Cavit.astype('uint8')
 df.Alpha = df.Alpha.astype('float32')
 df.Sigma = df.Sigma.astype('float32')
-
-print('Memory used:', memory_usage(df), 'Mb')
 
 # Affichage du graphe des points de fonctionnements testés
 fig, ax = plt.subplots(figsize=(11, 8))
@@ -73,11 +86,17 @@ plt.ylabel(r'$\sigma$ [-]')
 plt.grid()
 plt.show()
 
-g = open('Datas\\Pickle\\Sampling\\Short_' + str(dt) + 's_sample_' + str(ti) +
-         's_step.pckl', 'wb')
+# enregistrement en pickle
+g = open('Datas\\Pickle\\Sampling\\' + str(dt) + 's_sample_' + str(ti) +
+         's_ti.pckl', 'wb')
 pickle.dump(df, g)
 g.close()
 
+# Contrôle que tous les échantillons soient bien de la même taille
+lenmicro = []   
+j = 0
+for j in range(len(df.Micro)):
+    lenmicro.append(len(df.Micro[j]))
 
-def sound(track):
-    sd.play(track, 44100)
+print('longueur des échantillons identiques : ' + 
+      str(min(lenmicro)==max(lenmicro)))
