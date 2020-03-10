@@ -21,6 +21,7 @@ infile.close()
 
 cavit = []
 no_cavit = []
+bulle = []
 
 fig = plt.figure(figsize=(10,6))
 
@@ -59,17 +60,23 @@ def plotCDF(i, color):
     if df.Cavit[i] == 0:
         no_cavit.append(cumsumNorm)
     else:
-        cavit.append(cumsumNorm)
+        if df.Alpha[i] == 6:
+            bulle.append(cumsumNorm)
+        else:
+            cavit.append(cumsumNorm)
     
 
 for i in range(len(df.Micro)):
     if df.Cavit[i] == 0:
         c = 'b'
     else:
-        c = 'r'
+        if df.Alpha[i] == 6:
+            c = 'g'
+        else:
+            c = 'r'
     plotCDF(i, c)
 
-plt.text(15000, 0.1, 'Red : cavitation\nBlue : no cavitation', fontsize = 15)
+plt.text(12500, 0.1, 'Red : cavitation par poche\nGreen : cavitation par bulle\nBlue : no cavitation', fontsize = 15)
 plt.xlabel('Frequencies [Hz]')
 plt.ylabel('Density [-]')
 
@@ -78,10 +85,18 @@ for j in range(len(cavit)):
     sumcavit = sumcavit + cavit[j]
 sumcavit = sumcavit / len(cavit) 
 
+sumbulle=np.zeros(len(bulle[0]))
+for j in range(len(bulle)):
+    sumbulle = sumbulle + bulle[j]
+sumbulle = sumbulle / len(bulle) 
+
 sumnocavit=np.zeros(len(no_cavit[0]))
 for j in range(len(no_cavit)):
     sumnocavit = sumnocavit + no_cavit[j]
 sumnocavit = sumnocavit / len(no_cavit) 
 
+plt.grid()
+plt.minorticks_on()
 plt.plot(xf, sumcavit , color='black')
-plt.plot(xf, sumnocavit , color='white')
+plt.plot(xf, sumnocavit , color='black')
+plt.plot(xf, sumbulle , color='black')
