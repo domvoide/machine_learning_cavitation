@@ -15,9 +15,9 @@ from sklearn import neighbors
 from matplotlib import pyplot as plt
 
 # importation des features et des labels
-filename = 'Short_1s_sample_0.9s_step'
+filename = '1s_sample_0.1s_ti'
 # read pickle file
-infile = open('Datas\\Pickle\\Features\\Features' + filename + '.pckl', 'rb')
+infile = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
