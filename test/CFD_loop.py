@@ -6,47 +6,107 @@ Created on Fri Mar  6 13:25:18 2020
 
 plot de toutes les courbes CDF avec les couleurs en fonction des labels
 """
-from datetime import datetime
+
 import pickle
 import numpy as np
 from matplotlib import pyplot as plt
 
+def find_nearest(array, value):
+    """
+    Trouve la valeur et l'index la plus proche d'une valeur 
+    choisie dans un vecteur
 
-t0 = datetime.now()
+    Parameters
+    ----------
+    array : array
+        vecteur où trouver la valeur.
+    value : int
+        valeur à trouver.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+    idx : TYPE
+        DESCRIPTION.
+
+    """
+    n = [abs(i-value) for i in array]
+    idx = n.index(min(n))
+    return array[idx], idx
+
+# entrée utilisateur
 filename = '1s_sample_0.1s_ti'
+fCDF = [1500, 3500, 7000]
+Fs = 40000  # fréquence d'acquisition
+fftstart = 20  # valeurs de fréquence à négliger au début
+
 # read pickle file
 infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-cavit = []
-no_cavit = []
-bulle = []
+#initialisation des listes et dictionnaires
+cavit = []      # vecteur CDF cavitant
+no_cavit = []   # vecteur CDF non cavitant
+data = {}       # dict des features CDF aux fréquences fCDF
+for key in fCDF:
+    data[key] = []
+argxf = []      # index des fCDF sur le vecteur xf
+x_feature = []  # vecteur x pour ploter les features fCDF
 
+# calcul du vecteur xf et de la longeur de la fft NFFT
+L = len(df.Micro[0])
+NFFT = int(2 ** np.ceil(np.log2(abs(L))))
+T = 1.0 / Fs
+xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
+xf = xf[fftstart:]
+
+# trouver la valeure xf la plus proche des fréquences fCDF
+for i in range(len(fCDF)):
+    argxf.append(find_nearest(xf,fCDF[i])[1])
+
+# création de la figure
 fig = plt.figure(figsize=(10,6))
+plt.title('CDF')
+plt.grid()
+plt.minorticks_on()
 
-def plotCDF(i, color):
-    global xf
+def plotCDF(i, color, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
+    """
+
+    Parameters
+    ----------
+    i : int
+        index du vecteur Micro.
+    color : str
+        Couleur selon cavitation ou non.
+    Fs : int, optional
+        Fréquence d'acquisition. The default is Fs.
+    L : int, optional
+        Longueur fichier audio. The default is L.
+    NFFT : int, optional
+        Puissance de 2 supérieur à L. The default is NFFT.
+    T : float, optional
+        période (1/Fs). The default is T.
+    xf : array of float64, optional
+        Vecteur x pour la fft et la CDF. The default is xf.
+
+    Returns
+    -------
+    None.
+
+    """
     audio = df.Micro[i]  # fichier audio brut
-    Fs = 40000  # fréquence d'acquisition
-    
-    # var = statistics.variance(audio)
-    
-    L = len(audio)
-    NFFT = int(2 ** np.ceil(np.log2(abs(L))))
-    # freq = Fs / 2 * np.linspace(0, 1, NFFT//2)
-    
-    T = 1.0 / Fs
-    
+   
     ########################################################################
     # fft
-    xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
+    
     yf = np.fft.fft(audio, NFFT)/L
     yf = 2*abs(yf[:NFFT//2])
     
     # on néglige les x premières fréquences
-    xf = xf[20:]
-    yf = yf[20:]
+    yf = yf[fftstart:]
     
     
     ########################################################################
@@ -54,49 +114,53 @@ def plotCDF(i, color):
     cumsum = np.cumsum(yf)
     sumyf = sum(yf)
     cumsumNorm = cumsum/sumyf
-    plt.title('CDF')
+    
+    # plot de la CDF
     plt.plot(xf, cumsumNorm , color=color)
+    
+    # dat = dat.append({'frame': str(i), 'count':i},ignore_index=True)
+    
+    for k in range(len(fCDF)):
+        data[fCDF[k]].append(cumsumNorm[argxf[k]])
+
     
     if df.Cavit[i] == 0:
         no_cavit.append(cumsumNorm)
     else:
-        if df.Alpha[i] == 6:
-            bulle.append(cumsumNorm)
-        else:
-            cavit.append(cumsumNorm)
+        cavit.append(cumsumNorm)
     
 
 for i in range(len(df.Micro)):
     if df.Cavit[i] == 0:
         c = 'b'
     else:
-        if df.Alpha[i] == 6:
-            c = 'g'
-        else:
-            c = 'r'
+        c = 'r'
     plotCDF(i, c)
 
-plt.text(12500, 0.1, 'Red : cavitation par poche\nGreen : cavitation par bulle\nBlue : no cavitation', fontsize = 15)
+# légende et labels pour le graphe
+plt.text(12500, 0.1, 'Red : cavitation par poche\nBlue : no cavitation\nX : features',
+         fontsize = 15)
 plt.xlabel('Frequencies [Hz]')
 plt.ylabel('Density [-]')
 
+# moyenne pour les CDFs en cavitation
 sumcavit=np.zeros(len(cavit[0]))
 for j in range(len(cavit)):
     sumcavit = sumcavit + cavit[j]
-sumcavit = sumcavit / len(cavit) 
+meancavit = sumcavit / len(cavit) 
 
-sumbulle=np.zeros(len(bulle[0]))
-for j in range(len(bulle)):
-    sumbulle = sumbulle + bulle[j]
-sumbulle = sumbulle / len(bulle) 
-
+# moyenne pour les CDFs pas en cavitation
 sumnocavit=np.zeros(len(no_cavit[0]))
 for j in range(len(no_cavit)):
     sumnocavit = sumnocavit + no_cavit[j]
-sumnocavit = sumnocavit / len(no_cavit) 
+meannocavit = sumnocavit / len(no_cavit) 
 
-plt.grid()
-plt.minorticks_on()
-plt.plot(xf, sumcavit , color='black')
-plt.plot(xf, sumnocavit , color='black')
-plt.plot(xf, sumbulle , color='black')
+# plot des courbes moyennes
+plt.plot(xf, meancavit , color='black')
+plt.plot(xf, meannocavit , color='black')
+
+# plot des features
+for j in range(len(fCDF)):
+    x_feature.append(np.full(len(data[fCDF[j]]), xf[argxf[j]]))
+    plt.scatter(x_feature[j], data[fCDF[j]], color='black', marker='x', s=50,
+            zorder=3)
