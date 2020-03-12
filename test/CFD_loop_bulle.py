@@ -11,6 +11,8 @@ import pickle
 import numpy as np
 from matplotlib import pyplot as plt
 
+t0 = datetime.now() 
+
 filename = '1s_sample_0.1s_ti'
 # read pickle file
 infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
@@ -98,3 +100,7 @@ plt.minorticks_on()
 plt.plot(xf, sumcavit , color='black')
 plt.plot(xf, sumnocavit , color='black')
 plt.plot(xf, sumbulle , color='black')
+
+#affichage du temps écoulé
+t1 = datetime.now()
+print('Temps écoulé : ' + str(t1-t0) + ' [h:m:s]')

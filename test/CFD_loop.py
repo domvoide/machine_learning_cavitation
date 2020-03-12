@@ -10,6 +10,14 @@ plot de toutes les courbes CDF avec les couleurs en fonction des labels
 import pickle
 import numpy as np
 from matplotlib import pyplot as plt
+from datetime import datetime
+
+# Paramètres
+#############################################################################
+datatype = 'Uni'  # modifier aussi ligne 57
+#############################################################################
+
+t0 = datetime.now() 
 
 def find_nearest(array, value):
     """
@@ -46,6 +54,8 @@ infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
+sample = df.Uni  # feature à analyser
+
 #initialisation des listes et dictionnaires
 cavit = []      # vecteur CDF cavitant
 no_cavit = []   # vecteur CDF non cavitant
@@ -56,7 +66,7 @@ argxf = []      # index des fCDF sur le vecteur xf
 x_feature = []  # vecteur x pour ploter les features fCDF
 
 # calcul du vecteur xf et de la longeur de la fft NFFT
-L = len(df.Micro[0])
+L = len(sample[0])
 NFFT = int(2 ** np.ceil(np.log2(abs(L))))
 T = 1.0 / Fs
 xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
@@ -68,7 +78,7 @@ for i in range(len(fCDF)):
 
 # création de la figure
 fig = plt.figure(figsize=(10,6))
-plt.title('CDF')
+plt.title('CDF ' + datatype)
 plt.grid()
 plt.minorticks_on()
 
@@ -97,7 +107,7 @@ def plotCDF(i, color, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
     None.
 
     """
-    audio = df.Micro[i]  # fichier audio brut
+    audio = sample[i]  # fichier audio brut
    
     ########################################################################
     # fft
@@ -130,7 +140,7 @@ def plotCDF(i, color, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
         cavit.append(cumsumNorm)
     
 
-for i in range(len(df.Micro)):
+for i in range(len(sample)):
     if df.Cavit[i] == 0:
         c = 'b'
     else:
@@ -164,3 +174,7 @@ for j in range(len(fCDF)):
     x_feature.append(np.full(len(data[fCDF[j]]), xf[argxf[j]]))
     plt.scatter(x_feature[j], data[fCDF[j]], color='black', marker='x', s=50,
             zorder=3)
+
+#affichage du temps écoulé
+t1 = datetime.now()
+print('Temps écoulé : ' + str(t1-t0) + ' [h:m:s]')

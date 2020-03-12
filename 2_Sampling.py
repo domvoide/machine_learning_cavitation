@@ -11,14 +11,15 @@ import io
 import pickle
 import pandas as pd
 from matplotlib import pyplot as plt
-import sounddevice as sd
+from datetime import datetime
 
 # Paramètres
 #############################################################################
-dt = 1  # durée de l'échantillon en secondes
-ti = 0  # durée de recouvrement en secondes (pas entre chaque échantillon)
+dt = 1      # durée de l'échantillon en secondes
+ti = 0.1    # durée de recouvrement en secondes (pas entre chaque échantillon)
 #############################################################################
 
+t0 = datetime.now()
 # importation du pickle contenant les 18 fichiers de données
 folder_path = 'Datas\\Pickle\\all_data.pckl'
 buf = io.open(folder_path, 'rb', buffering=(128 * 2048))
@@ -26,10 +27,6 @@ df = pickle.load(buf)
 buf.close()
 del buf
 df = df.transpose()
-
-# # creation d'une matrice plus compact pour commencer (plus rapide à travailler)
-# df2 = dataframe[['Alpha', 'Sigma', 'Time', 'Micro', 'Cavit']].copy()
-# del dataframe
 
 # Acquisition de la fréquence
 f = round(1 / (df.Time[0][1]-df.Time[0][0]), 1)
@@ -71,9 +68,9 @@ for k in range(len(data['Micro'])):
         dellist.append(k)
         
 dellist = dellist[::-1]  # inversion du sens de la liste
+
 # Suppression des échantillons de mauvaise taille
 for nb in dellist:
-    print(nb)
     del data['Acc_X'][nb]
     del data['Acc_Y'][nb]
     del data['Acc_Z'][nb]
@@ -83,7 +80,6 @@ for nb in dellist:
     del data['AE'][nb]
     del data['Cavit'][nb]
     del data['Alpha'][nb]
-    del data['Sigma'][nb]
     del data['Sigma'][nb]
 
 # Affichage du graphe des points de fonctionnements testés
@@ -97,17 +93,13 @@ plt.ylabel(r'$\sigma$ [-]')
 plt.grid()
 plt.show()
 
-    
-del df
-# transformation en dataframe et mise en forme pour compacter
-df = pd.DataFrame(data)
-# df.Cavit = df.Cavit.astype('uint8')
-# df.Alpha = df.Alpha.astype('float32')
-# df.Sigma = df.Sigma.astype('float32')
+del df  # suppression de la variable df
 
+# transformation en dataframe
+df = pd.DataFrame(data)
 
 # enregistrement en pickle
-g = open('Datas\\Pickle\\Sampling\\All_' + str(dt) + 's_sample_' + str(ti) +
+g = open('Datas\\Pickle\\Sampling\\' + str(dt) + 's_sample_' + str(ti) +
          's_ti.pckl', 'wb')
 pickle.dump(df, g)
 g.close()
@@ -120,3 +112,7 @@ for j in range(len(df.Micro)):
 
 print('longueur des échantillons identiques : ' + 
       str(min(lenmicro)==max(lenmicro)))
+
+#affichage du temps écoulé
+t1 = datetime.now()
+print('Temps écoulé : ' + str(t1-t0) + ' [h:m:s]')
