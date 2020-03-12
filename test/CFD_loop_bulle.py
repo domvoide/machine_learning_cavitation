@@ -76,7 +76,7 @@ for i in range(len(df.Micro)):
 
 plt.text(12500, 0.1, 'Red : cavitation par poche\nGreen : cavitation par bulle\nBlue : no cavitation', fontsize = 15)
 plt.xlabel('Frequencies [Hz]')
-plt.ylabel('Density [-]')
+plt.ylabel('CDF [-]')
 
 sumcavit=np.zeros(len(cavit[0]))
 for j in range(len(cavit)):
