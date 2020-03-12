@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 from datetime import datetime
 
 t0 = datetime.now()
-filename = '1s_sample_0.1s_ti'
+filename = 'All_1s_sample_0.1s_ti'
 # read pickle file
 
 infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
@@ -31,21 +31,21 @@ for i in range(len(df.Micro)):
     if df.Cavit[i] == 0:
         c = 'b'
         y = 0
-        var = statistics.variance(df.Micro[i])
-        plt.scatter(var, y, color=c)
-        no_cavit.append(var)
+        p2p = max(df.Micro[i]) - min(df.Micro[i])
+        plt.scatter(p2p, y, color=c)
+        no_cavit.append(p2p)
     else:
         c = 'r'
         y = 1
-        var = statistics.variance(df.Micro[i])
-        plt.scatter(var, y, color=c)
-        cavit.append(var)
+        p2p = max(df.Micro[i]) - min(df.Micro[i])
+        plt.scatter(p2p, y, color=c)
+        cavit.append(p2p)
     
 # Mise en forme du graphique
-plt.text(1.6, 0.8, 'Red : cavitation\nBlue : no cavitation\nx : mean', fontsize = 15)
-plt.xlabel('Variance [-]')
+plt.text(7, 0.2, 'Red : cavitation\nBlue : no cavitation\nx : mean', fontsize = 15)
+plt.xlabel('Peak to peak [-]')
 plt.ylabel('Cavitation [-]')
-
+plt.title('Peak to peak (amplitude)')
 # moyenne des variances par label
 mean_no_cavit = np.mean(no_cavit)
 mean_cavit = np.mean(cavit)
@@ -56,4 +56,4 @@ plt.scatter(mean_cavit, 1, c='black', edgecolor='white', marker='x', s=100)
 
 #affichage du temps écoulé
 t1 = datetime.now()
-print('Temps écoulé : ' + str(t1-t0))
+print('Temps écoulé : ' + str(t1-t0) + ' [h:m:s]')

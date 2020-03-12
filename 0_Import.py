@@ -1,19 +1,35 @@
+
+"""
+Created on Wed Feb 07 10:12:35 2020
+
+@author: dominiqu.voide
+
+Importation des différents fichiers tdms fournis par François Pedroni
+Il y a 3 fichiers par point de fonctionnement qu'il faut renseigner en path 1,2,3
+il faut également renseigner le sigma et alpha du point et le label de cavitaiton
+
+"""
+
 from nptdms import TdmsFile
 import pickle
 import sounddevice as sd
 import numpy as np
 import pandas as pd
 
-
+# Paramètres
+#############################################################################
 cavitation = 0  # 0 pour non et 1 pour oui
 alpha = 6
 sigma = 4.4
-Name = 'Alpha_' + str(alpha) + '_Sigma_' + str(sigma)
 
 path1 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1044_001.tdms'
 path2 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1044_002.tdms'
 path3 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1045_003.tdms'
+#############################################################################
+
+Name = 'Alpha_' + str(alpha) + '_Sigma_' + str(sigma) # nom du fichier pour enregistremen pickle
 paths = [path1, path2, path3]
+# création des dictionnaire pour chaque vecteur
 properties, names, time,  acc_X, acc_Y, acc_Z, micro, uni, hydro, brut = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
 files = []
 for i in range(3):
@@ -37,12 +53,6 @@ for j in range(len(paths)):
     channel = files[j].object('Untitled', 'AE_Brut_SN5527551')
     brut[j] = channel.data
 
-# vecteur de cavitation 0 pour pas de cavitation 1 pour cavitation
-# d'après l'écoute des fichiers audio
-# cavit, alpha, sigma = {}, {}, {}
-# cavit = cavitation
-# alpha = alpha
-# sigma = sigma
 
 # concatenate value of same alpha and sigma
 Acc_X = np.append(acc_X[0], acc_X[1])
@@ -82,23 +92,11 @@ data = {'Names': Name,
         'Brut': Brut,
         'Cavit': cavitation}
 
-
-df = pd.DataFrame.from_dict(data)
-
-f = open('Datas\\Pickle\\dic\\' + str(Name) + '_dic.pckl', 'wb')
-pickle.dump(data, f)
-f.close()
-
+# enregistrement du dictionnaire (plus compact que les dataframes)
 f = open('Datas\\Pickle\\df\\' + str(Name) + '_df.pckl', 'wb')
 pickle.dump(df, f)
 f.close()
 
-
-# read pickle file
-# infile = open('Data0.pckl', 'rb')
-# df_load = pickle.load(infile)
-# infile.close()
-
-
+# fonction pour tester les fichier audios
 def sound(track):
-    sd.play(track, 44100)
+    sd.play(track, 44000)

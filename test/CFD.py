@@ -15,9 +15,9 @@ from scipy import signal
 from scipy import stats
 
 t0 = datetime.now()
-filename = 'Short_1s_sample_0.9s_step'
+filename = '1s_sample_0.1s_ti'
 # read pickle file
-infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
+infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
@@ -36,7 +36,7 @@ T = 1.0 / Fs
 ########################################################################
 # fft
 xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
-yf = np.fft.fft(audio, NFFT)
+yf = np.fft.fft(audio, NFFT)/L
 yf = 2*abs(yf[:NFFT//2])
 
 # on néglige les x premières fréquences
