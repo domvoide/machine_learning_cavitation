@@ -38,7 +38,7 @@ data = {'Alpha': [],
         'Acc_Y': [],
         'Acc_Z': [],
         'Micro': [],
-        'Uni': [],
+        'Uni_Y': [],
         'Hydro': [],
         'AE': [],
         'Cavit': []}
@@ -53,7 +53,7 @@ for j in range(18):
         data['Acc_Y'].append(df.Acc_Y[j][i: i + size])
         data['Acc_Z'].append(df.Acc_Z[j][i: i + size])
         data['Micro'].append(df.Micro[j][i: i + size])
-        data['Uni'].append(df.Uni[j][i: i + size])
+        data['Uni_Y'].append(df.Uni[j][i: i + size])
         data['Hydro'].append(df.Hydro[j][i: i + size])
         data['AE'].append(df.Brut[j][i: i + size])
         data['Cavit'].append(df.Cavit[j])
@@ -75,7 +75,7 @@ for nb in dellist:
     del data['Acc_Y'][nb]
     del data['Acc_Z'][nb]
     del data['Micro'][nb]
-    del data['Uni'][nb]
+    del data['Uni_Y'][nb]
     del data['Hydro'][nb]
     del data['AE'][nb]
     del data['Cavit'][nb]

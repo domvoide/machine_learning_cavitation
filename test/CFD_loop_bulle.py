@@ -4,12 +4,17 @@ Created on Fri Mar  6 13:25:18 2020
 
 @author: voide
 
-test pour vérifier si la cavitation par bulle se trouve aux courbes inférieures
+test pour vérifier où se trouve la cavitation par bulle alpha = 6°
 """
 from datetime import datetime
 import pickle
 import numpy as np
 from matplotlib import pyplot as plt
+
+# Paramètres
+#############################################################################
+datatype = 'Uni'  # modifier aussi ligne 57
+#############################################################################
 
 t0 = datetime.now() 
 
@@ -19,6 +24,8 @@ infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
+sample = df.Uni
+
 cavit = []
 no_cavit = []
 bulle = []
@@ -27,7 +34,7 @@ fig = plt.figure(figsize=(10,6))
 
 def plotCDF(i, color):
     global xf
-    audio = df.Micro[i]  # fichier audio brut
+    audio = sample[i]  # fichier audio brut
     Fs = 40000  # fréquence d'acquisition
     
     # var = statistics.variance(audio)
@@ -66,7 +73,7 @@ def plotCDF(i, color):
             cavit.append(cumsumNorm)
     
 
-for i in range(len(df.Micro)):
+for i in range(len(sample)):
     if df.Cavit[i] == 0:
         c = 'b'
     else:

@@ -3,7 +3,15 @@ from matplotlib import pyplot as plt
 import numpy as np
 from scipy import signal
 
-mat = [0,1,2,3,4,5,6,7,8,9]
+data = np.empty(0)
 
-for j in range(18):
-    for i in range(0, len(mat), step):
+a = 1
+b = 2
+c = 3
+
+for i in range(5):
+    data = np.append(data,a)
+    data = np.append(data,b)
+    data = np.append(data,c)
+
+data = np.reshape(data,(3,5))
