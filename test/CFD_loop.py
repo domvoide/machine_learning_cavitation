@@ -14,7 +14,7 @@ from datetime import datetime
 
 # Paramètres
 #############################################################################
-datatype = 'Uni'  # modifier aussi ligne 57
+datatype = 'Uni_Y'  # modifier aussi ligne 57
 #############################################################################
 
 t0 = datetime.now() 
@@ -54,7 +54,7 @@ infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-sample = df.Uni  # feature à analyser
+sample = df.Uni_Y  # feature à analyser
 
 #initialisation des listes et dictionnaires
 cavit = []      # vecteur CDF cavitant

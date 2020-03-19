@@ -8,10 +8,13 @@ Analyse PCA des features
 """
 import pickle
 from sklearn.decomposition import PCA
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from datetime import datetime
+from matplotlib.axes._axes import _log as matplotlib_axes_logger
+matplotlib_axes_logger.setLevel('ERROR')
 
 
 # Paramètres
@@ -22,7 +25,11 @@ fCDF = np.arange(0, 21000, 1000)
 Fs = 40000  # fréquence d'acquisition
 fftstart = 20  # valeurs de fréquence à négliger au début
 pathfig = 'C:\\Users\\voide\\Documents\\Master\\Machine Learning\
-\Documents\\Analyse_features\\'+ datatype +'\\'
+\Documents\\Analyse_features\\'
+
+n_components = 2
+
+
 #############################################################################
 
 t0 = datetime.now() 
@@ -51,13 +58,14 @@ def find_nearest(array, value):
     idx = n.index(min(n))
     return array[idx], idx
 
+
 # read pickle file
 infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
 #########################################################################
-sample = df.Uni_Y  # feature à analyser
+sample = df[datatype]  # feature à analyser
 #########################################################################
 
 #initialisation des listes et dictionnaires
@@ -181,13 +189,15 @@ for j in range(len(fCDF)):
 
 data = pd.DataFrame(data).to_numpy()
 
-fig = plt.figure(2, figsize=(10, 6))
-plt.title('CDF discrétisée' + datatype)
-plt.grid()
-plt.minorticks_on()
-plt.plot(fCDF, np.transpose(data))
-plt.xlabel('Frequencies [Hz]')
-plt.ylabel('CDF [-]')
+fig = plt.figure(2, figsize=(20, 13))
+fig.suptitle('PCA '  + datatype, fontsize=24)
+ax1 = fig.add_subplot(221)
+ax1.title.set_text('CDF discrétisée')
+ax1.grid()
+ax1.minorticks_on()
+ax1.plot(fCDF, np.transpose(data))
+ax1.set_xlabel('Frequencies [Hz]')
+ax1.set_ylabel('CDF [-]')
 
 # Build a PCA model of the data
 pca = PCA()
@@ -195,48 +205,66 @@ pca.fit(data)
 
 # Plot the cumulative variance explained by the EV
 ratio = pca.explained_variance_ratio_
-plt.figure(3, figsize=(10, 6))
-plt.plot(np.arange(1, len(ratio) + 1), np.cumsum(ratio))
-plt.xlabel('Components')
-plt.ylabel('Cumulated variance explained by the components')
+# plt.figure(3, figsize=(10, 6))
+ax2 = fig.add_subplot(222)
+ax2.title.set_text('Variance / components')
+ax2.plot(np.arange(1, len(ratio) + 1), np.cumsum(ratio))
+ax2.set_xlabel('Numbers of Components')
+ax2.set_ylabel('Cumulated variance explained by the components')
 
 # Use only the first two components
-pca = PCA(n_components=2)
+pca = PCA(n_components=n_components)
 pca.fit(data)
 X = pca.transform(data)
 
 # plot points in transformed space
-plt.figure(4, figsize=(10, 6))
-plt.plot(X[:365, 0], X[:365, 1], 'xb')
-plt.plot(X[365:730, 0], X[365:730, 1], 'or')
-plt.plot(X[730:, 0], X[730:, 1], '.k')
+# plt.figure(5, figsize=(10, 6))
+color=plt.cm.rainbow(np.linspace(0,1,18))
+ax3 = fig.add_subplot(223)
+ax3.title.set_text('First two main components')
+for i,c in zip(range(0, 1188, 66),  color):
+    ax3.scatter(X[i:i+66, 0], X[i:i+66, 1],c=c, label= 'Pt : ' + str(int((i+66)/66)))
+ax3.legend(loc='best', ncol=2)
+
+# plt.plot(X[66:730, 0], X[365:730, 1], 'or')
+# plt.plot(X[730:, 0], X[730:, 1], '.k')
 
 # plot standard deviation location
 std = np.sqrt(pca.explained_variance_)
-plt.plot(std[0], 0, 'og')
-plt.plot(-std[0], 0, 'ok')
-plt.plot(0, std[1], 'or')
-plt.plot(0, -std[1], 'om')
-plt.xlabel('First component')
-plt.ylabel('Second component')
+# plt.plot(std[0], 0, 'og', label='std[0],0')
+# plt.plot(-std[0], 0, 'ok', label='-std[0],0')
+# plt.plot(0, std[1], 'or', label='0, std[1]')
+# plt.plot(0, -std[1], 'om', label='0, -std[1]')
+ax3.set_xlabel('First component')
+ax3.set_ylabel('Second component')
+ax3.grid()
+ax3.minorticks_on
 
 # plot the mean and the different axes of the PCA
-plt.figure(5, figsize=(10, 6))
-plt.plot(fCDF, pca.mean_, label='Mean')
+# plt.figure(6, figsize=(10, 6))
+ax4 = fig.add_subplot(224)
+ax4.title.set_text('Mean and differents axes of the PCA')
+ax4.plot(fCDF, pca.mean_, label='Mean')
 # Transform the axes points into curves
 y = pca.inverse_transform([std[0], 0])
-plt.plot(fCDF, y, 'g', label='1st component [+std]')
+ax4.plot(fCDF, y, 'g', label='1st component [+std]')
 y = pca.inverse_transform([-std[0], 0])
-plt.plot(fCDF, y, 'k', label='1st component [-std]')
+ax4.plot(fCDF, y, 'k', label='1st component [-std]')
 y = pca.inverse_transform([1, std[1]])
-plt.plot(fCDF, y, 'r', label='2nd component [std]')
+ax4.plot(fCDF, y, 'r', label='2nd component [std]')
 y = pca.inverse_transform([1, -std[1]])
-plt.plot(fCDF, y, 'm', label='2nd component [-std]')
-plt.xlabel('Frequencies [Hz]')
-plt.ylabel('CDF')
-plt.legend(loc=0, ncol=2)
-plt.grid()
-plt.minorticks_on
+ax4.plot(fCDF, y, 'm', label='2nd component [-std]')
+ax4.set_xlabel('Frequencies [Hz]')
+ax4.set_ylabel('CDF')
+ax4.legend(loc=0, ncol=2)
+ax4.grid()
+ax4.minorticks_on
+
+fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+
+pdf = PdfPages(pathfig + 'PCA_' + datatype +'.pdf')
+pdf.savefig(1)
 
 #affichage du temps écoulé
 t1 = datetime.now()

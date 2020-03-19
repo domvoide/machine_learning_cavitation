@@ -49,7 +49,7 @@ def find_nearest(array, value):
     return array[idx], idx
 
 # read pickle file
-infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
+infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
