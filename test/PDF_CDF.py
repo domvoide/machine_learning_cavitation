@@ -13,6 +13,7 @@ import statistics
 import scipy
 from scipy import signal
 from scipy import stats
+from scipy.stats import norm
 
 t0 = datetime.now()
 filename = '1s_sample_0.1s_ti'
@@ -43,39 +44,54 @@ yf = 2*abs(yf[:NFFT//2])
 xf = xf[20:]
 yf = yf[20:]
 
-fig = plt.figure(figsize=(10,10))
-fig.add_subplot(211)
+fig = plt.figure(figsize=(10,15))
+fig.add_subplot(311)
 plt.title('FFT')
 plt.plot(xf, yf)
 
 ########################################################################
-# # pdf
-# fig.add_subplot(312)
-# plt.title('PDF')
+# PDF
 
-# N=75
-# n_samples = NFFT//2//N
-# sumi = 0
-# i = 0
-# j = 0
-# l = 0
-# bar = []
+mean_yf = np.mean(audio)
+std_yf = np.std(audio)
+dist = norm(mean_yf, std_yf)
+values = [value for value in range(0, 20000, 10)]
+prob = [dist.pdf(value) for value in values]
+fig.add_subplot(312)
+plt.title('PDF')
+plt.plot(values, prob)
 
-# for j in range(N):
-#     sumi = 0
-#     m = 0
-#     for i in range(n_samples):
-#         sumi = sumi + yf[l]
-#     for m in range(n_samples):
-#             bar.append(sumi)
-#     l = l + n_samples
-
-# plt.plot(bar/sum(bar))
 
 ########################################################################
 # CDF
+
 cumsum = np.cumsum(yf)
-fig.add_subplot(212)
+fig.add_subplot(313)
 plt.title('CDF')
 plt.plot(xf, cumsum/sum(yf))
-plt.show()
+
+
+# generate a sample
+sample = np.random.normal(loc=50, scale=5, size=1000)
+# calculate parameters
+sample_mean = np.mean(sample)
+sample_std = np.std(sample)
+print('Mean=%.3f, Standard Deviation=%.3f' % (sample_mean, sample_std))
+# define the distribution
+dist = norm(sample_mean, sample_std)
+# sample probabilities for a range of outcomes
+values = [value for value in range(30, 70)]
+probabilities = [dist.pdf(value) for value in values]
+# plot the histogram and pdf
+fig = plt.figure()
+ax = fig.add_subplot(211)
+ax.hist(sample, bins=10, density=True)
+ax.plot(values, probabilities)
+
+x = np.linspace(30, 70, 1000) 
+ax2 = fig.add_subplot(212)
+ax2.plot(x, sample, c='red')
+
+
+
+

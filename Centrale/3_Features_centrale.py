@@ -9,39 +9,36 @@ machine learning
 """
 
 import numpy as np
-import statistics
 import pickle
 import pandas as pd
-from scipy import signal
 from datetime import datetime
+from matplotlib import pyplot as plt
+from matplotlib import cm
 
 # Paramètres
 #############################################################################
 
-filename = '1s_sample_0s_ti'  # fichier sample a ouvrir
+filename = 'Centrale'  # fichier sample a ouvrir
 
-
-Fs = 40000  # fréquence d'acquisition
+Fs = 10000  # fréquence d'acquisition
 fftstart = 20  # valeurs de fréquence à négliger au début
-fCDF = np.arange(0, 21000, 1000)  # fréquences à analyser pour la CDF
-
-datatype = 'Micro'
+fCDF = np.linspace(0, 6000, 21)  # fréquences à analyser pour la CDF
 
 #############################################################################
 
 t0 = datetime.now() 
 
 # read pickle file
-infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
+infile = open('Datas\\Pickle\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
-sample = df[datatype] # choix du vecteur à analyser
+columns = df.columns
 
 
 #initialisation des listes et dictionnaires
-cavit = []      # vecteur CDF cavitant
-no_cavit = []   # vecteur CDF non cavitant
+
 data = {}       # dict des features CDF aux fréquences fCDF
+CDFa = []
 argxf = []      # index des fCDF sur le vecteur xf
 x_feature = []  # vecteur x pour ploter les features fCDF
 for key in fCDF:
@@ -49,11 +46,17 @@ for key in fCDF:
 
 
 # calcul du vecteur xf et de la longeur de la fft NFFT
-L = len(sample[0])
+L = len(df[columns[0]])
 NFFT = int(2 ** np.ceil(np.log2(abs(L))))
 T = 1.0 / Fs
 xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
 xf = xf[fftstart:]
+
+fig = plt.figure(figsize=(10,6))
+ax1 = fig.add_subplot(1,1,1)
+colors = plt.cm.Accent(np.linspace(0, 1, num=8))
+
+
 
 def find_nearest(array, value):
     """
@@ -84,7 +87,7 @@ for i in range(len(fCDF)):
     argxf.append(find_nearest(xf,fCDF[i])[1])
 
 
-def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
+def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf, color=None):
     """
 
     Parameters
@@ -124,30 +127,52 @@ def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
     sumyf = sum(yf)
     cumsumNorm = cumsum/sumyf
     
+    # plot de la CDF
+    ax1.plot(xf, cumsumNorm , color=c)
+    
     CDFa = []
     for j in range(len(fCDF)):
         CDFa.append(cumsumNorm[argxf[j]])
 
     return CDFa
-
-
+    
 CDF = []
 
 
 # boucle pour traiter tous les fichiers
-for i in range(len(sample)):
-    CDF.append(cdf(sample[i]))
+for col in columns[0:14]:
+    if col[0] == 'A':
+        c = colors[0]
+    elif col[0] == 'B':
+        c = colors[1]
+    elif col[0] == 'C':
+        c = colors[2]
+    elif col[0] == 'D':
+        c = colors[7]
+    elif col[0] == 'E':
+        c = colors[4]
+    elif col[0] == 'F':
+        c = colors[5]
+    elif col[0] == 'G':
+        c = colors[6]
+    else:
+        c = colors[7]
+        
+    CDF.append(cdf(df[col], color=c))
 
-
+    
+ax1.legend(columns, loc='best', ncol=3)
+ax1.set_title('CDF mesures en centrale')
+ax1.set_ylabel('CDF')
+ax1.set_xlabel('Fréquence [Hz]')
 
 # création des vecteurs X et y
 X = pd.DataFrame(CDF)
-y = df.Cavit
+
 
 # sauvegarde en pickle
-g = open('Datas\\Pickle\\Features\\Features_' + datatype
-         + '_' + filename + '.pckl', 'wb')
-pickle.dump((X, y), g)
+g = open('Datas\\Pickle\\Features\\Features_Centrale_statique.pckl', 'wb')
+pickle.dump(X, g)
 g.close()
 
 #affichage du temps écoulé

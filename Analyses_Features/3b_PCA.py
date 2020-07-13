@@ -9,6 +9,7 @@ Analyse PCA des features
 import pickle
 from sklearn.decomposition import PCA
 from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,7 +20,7 @@ matplotlib_axes_logger.setLevel('ERROR')
 
 # Paramètres
 #############################################################################
-datatype = 'Uni_Y'  # modifier aussi ligne 66
+datatype = 'Micro' # choix du capteur 'Acc_X', 'Acc_Y', 'Acc_Z', 'Micro', 'Uni_Y', 'Hydro'
 filename = '1s_sample_0.1s_ti'
 fCDF = np.arange(0, 21000, 1000)
 Fs = 40000  # fréquence d'acquisition
@@ -29,6 +30,11 @@ pathfig = 'C:\\Users\\voide\\Documents\\Master\\Machine Learning\
 
 n_components = 2
 
+# choix des PCA transformée à afficher sur les plots 2 et 3
+carre = [0.35, 0.28]
+croix = [0, -0.15]
+triangle = [-0.4, 0.2]
+pentagone = [0.67, 0.13]
 
 #############################################################################
 
@@ -64,9 +70,8 @@ infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-#########################################################################
 sample = df[datatype]  # feature à analyser
-#########################################################################
+
 
 #initialisation des listes et dictionnaires
 cavit = []      # vecteur CDF cavitant
@@ -89,7 +94,7 @@ for i in range(len(fCDF)):
     argxf.append(find_nearest(xf,fCDF[i])[1])
 
 # création de la figure
-fig = plt.figure(1, figsize=(10,6))
+fig1 = plt.figure(figsize=(10,6))
 plt.title('CDF ' + datatype)
 plt.grid()
 plt.minorticks_on()
@@ -149,7 +154,7 @@ def plotCDF(i, color, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
     else:
         cavit.append(cumsumNorm)
     
-
+# couleur en fonction du label
 for i in range(len(sample)):
     if df.Cavit[i] == 0:
         c = 'b'
@@ -189,82 +194,157 @@ for j in range(len(fCDF)):
 
 data = pd.DataFrame(data).to_numpy()
 
-fig = plt.figure(2, figsize=(20, 13))
-fig.suptitle('PCA '  + datatype, fontsize=24)
-ax1 = fig.add_subplot(221)
+fig2 = plt.figure(figsize=(20, 13))
+fig2.suptitle('PCA '  + datatype, fontsize=24)
+ax1 = fig2.add_subplot(221)
 ax1.title.set_text('CDF discrétisée')
-ax1.grid()
-ax1.minorticks_on()
-ax1.plot(fCDF, np.transpose(data))
+ax1.plot(fCDF, np.transpose(data), alpha=0.3)
 ax1.set_xlabel('Frequencies [Hz]')
 ax1.set_ylabel('CDF [-]')
 
-# Build a PCA model of the data
+# PCA sur tous les composents
 pca = PCA()
 pca.fit(data)
 
-# Plot the cumulative variance explained by the EV
+### Plot the cumulative variance explained by the EV pour savoir le nombre 
+# de composants à prendre en compte pour la PCA
 ratio = pca.explained_variance_ratio_
-# plt.figure(3, figsize=(10, 6))
-ax2 = fig.add_subplot(222)
-ax2.title.set_text('Variance / components')
+fig3 = plt.figure(figsize=(5, 3))
+ax2 = fig3.add_subplot(111)
+# ax2.title.set_text('Variance / composants')
 ax2.plot(np.arange(1, len(ratio) + 1), np.cumsum(ratio))
-ax2.set_xlabel('Numbers of Components')
-ax2.set_ylabel('Cumulated variance explained by the components')
+ax2.set_xlabel('Nombre de composants')
+ax2.set_ylabel('Variance cumulée')
+ax2.set_xlim(0,6)
+ax2.grid()
 
-# Use only the first two components
+# choix du nombre de composents à prendre en compte
 pca = PCA(n_components=n_components)
 pca.fit(data)
+# mise en forme des std en fonction des composents choisis
 X = pca.transform(data)
 
-# plot points in transformed space
-# plt.figure(5, figsize=(10, 6))
-color=plt.cm.rainbow(np.linspace(0,1,18))
-ax3 = fig.add_subplot(223)
+############## plot points in transformed space ############################
+
+# sets de couleurs pour meilleure visualisation des points
+color = plt.cm.tab20(np.linspace(0,1,18))
+
+
+ax3 = fig2.add_subplot(222)
 ax3.title.set_text('First two main components')
-for i,c in zip(range(0, 1188, 66),  color):
-    ax3.scatter(X[i:i+66, 0], X[i:i+66, 1],c=c, label= 'Pt : ' + str(int((i+66)/66)))
+lenptfct = int(len(X)/18)
+for i,c in zip(range(0, len(X), lenptfct), color):
+    if df.Cavit[i] == 0:
+        mkr = 'x'
+        face = c
+    else: 
+        mkr = 'o'
+        face ='none'
+    ax3.scatter(X[i:i+lenptfct, 0], X[i:i+lenptfct, 1], edgecolors=c, 
+                marker=mkr, s=75,
+                facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
+    
+# affichage des labels
 ax3.legend(loc='best', ncol=2)
-
-# plt.plot(X[66:730, 0], X[365:730, 1], 'or')
-# plt.plot(X[730:, 0], X[730:, 1], '.k')
-
-# plot standard deviation location
-std = np.sqrt(pca.explained_variance_)
-# plt.plot(std[0], 0, 'og', label='std[0],0')
-# plt.plot(-std[0], 0, 'ok', label='-std[0],0')
-# plt.plot(0, std[1], 'or', label='0, std[1]')
-# plt.plot(0, -std[1], 'om', label='0, -std[1]')
 ax3.set_xlabel('First component')
 ax3.set_ylabel('Second component')
 ax3.grid()
 ax3.minorticks_on
 
+fig2.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+##############################################################################
+## affichage de la localisation des déviation en fonction des composants
+
+std = np.sqrt(pca.explained_variance_)
+# plt.plot(std[0], 0, 'og', label='std[0],0')
+# plt.plot(-std[0], 0, 'ok', label='-std[0],0')
+# plt.plot(0, std[1], 'or', label='0, std[1]')
+# plt.plot(0, -std[1], 'om', label='0, -std[1]')
+
+##############################################################################
 # plot the mean and the different axes of the PCA
-# plt.figure(6, figsize=(10, 6))
-ax4 = fig.add_subplot(224)
-ax4.title.set_text('Mean and differents axes of the PCA')
-ax4.plot(fCDF, pca.mean_, label='Mean')
+
+ax1.plot(fCDF, pca.mean_, c='C0', label='Mean', linewidth=2, zorder=10,
+         path_effects=[pe.Stroke(linewidth=4, foreground='w'), pe.Normal()])
 # Transform the axes points into curves
 y = pca.inverse_transform([std[0], 0])
-ax4.plot(fCDF, y, 'g', label='1st component [+std]')
+ax1.plot(fCDF, y, 'g', label='1st component [+std]', linewidth=2, zorder=10,
+         path_effects=[pe.Stroke(linewidth=4, foreground='w'), pe.Normal()])
 y = pca.inverse_transform([-std[0], 0])
-ax4.plot(fCDF, y, 'k', label='1st component [-std]')
-y = pca.inverse_transform([1, std[1]])
-ax4.plot(fCDF, y, 'r', label='2nd component [std]')
-y = pca.inverse_transform([1, -std[1]])
-ax4.plot(fCDF, y, 'm', label='2nd component [-std]')
-ax4.set_xlabel('Frequencies [Hz]')
-ax4.set_ylabel('CDF')
+ax1.plot(fCDF, y, 'k', label='1st component [-std]', linewidth=2, zorder=10,
+         path_effects=[pe.Stroke(linewidth=4, foreground='w'), pe.Normal()])
+y = pca.inverse_transform([0, std[1]]) # [1, std[1]] code exemple énergie
+ax1.plot(fCDF, y, 'r', label='2nd component [std]', linewidth=2, zorder=10,
+         path_effects=[pe.Stroke(linewidth=4, foreground='w'), pe.Normal()])
+y = pca.inverse_transform([0, -std[1]]) # [1, -std[1]] code exemple énergie
+ax1.plot(fCDF, y, 'm', label='2nd component [-std]', linewidth=2, zorder=10,
+         path_effects=[pe.Stroke(linewidth=4, foreground='w'), pe.Normal()])
+
+ax1.legend(loc=0, ncol=2)
+ax1.grid()
+ax1.minorticks_on
+
+ax4 = fig2.add_subplot(223)
+y = pca.inverse_transform([triangle[0], triangle[1]])
+ax4.plot(fCDF, y, label=('triangle'))
+ax3.scatter(triangle[0], triangle[1], marker='^', edgecolors='b', facecolors='r',
+            s=75, zorder=10)
+y = pca.inverse_transform([carre[0],carre[1]])
+ax4.plot(fCDF, y, label=('carré'))
+ax3.scatter(carre[0], carre[1], marker='s', edgecolors='b', facecolors='r',
+            s=75, zorder=10)
+y = pca.inverse_transform([pentagone[0], pentagone[1]])
+ax4.plot(fCDF, y, label=('pentagone'))
+ax3.scatter(pentagone[0], pentagone[1], marker='p', edgecolors='b', facecolors='r',
+            s=75, zorder=10)
+
+y = pca.inverse_transform([croix[0], croix[1]])
+ax4.plot(fCDF, y, label=('croix'))
+ax3.scatter(croix[0], croix[1], marker='X', edgecolors='b', facecolors='r',
+            s=75, zorder=10)
 ax4.legend(loc=0, ncol=2)
+ax4.set_xlabel('Frequencies [Hz]')
+ax4.set_ylabel('CDF [-]')
 ax4.grid()
 ax4.minorticks_on
 
-fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+ax5 = fig2.add_subplot(224)
+lenptfct = int(len(df.Alpha)/18)
+for i,c in zip(range(0, len(df.Alpha), lenptfct), color):
+    if df.Cavit[i] == 0:
+        mkr = 'x'
+        face = c
+    else: 
+        mkr = 'o'
+        face ='none'
 
+    ax5.scatter(df.Alpha[i:i+lenptfct], df.Sigma[i:i+lenptfct],edgecolors=c, 
+               marker=mkr, s=75,
+               facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
 
-pdf = PdfPages(pathfig + 'PCA_' + datatype +'.pdf')
-pdf.savefig(1)
+a = np.arange(1 , 16, 1)
+b = 0.003 * a ** 3 - 0.035*a**2 + 0.6231*a + 0.8694
+ac = np.arange(7, 11, 1)
+c = 0.125 * ac**2 -2.975 * ac + 19.225
+d = 0.0833 * a + 1
+ax5.plot(a, b, ac, c, a, d, c='k')
+
+ax5.text(6.5, 6.5,r'$Cp_{min}$', fontsize=14, 
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax5.text(2.75, 1.65,'Bubble Cavitation', fontsize=14, rotation=10,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax5.text(11, 5.5,'Pocket Cavitation', fontsize=14,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax5.text(7, 0.85,'Supercavitation', fontsize=14, rotation=3,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+
+ax5.legend(loc='best', ncol=2, )
+ax5.set_xlabel(r'$\alpha$ [°]')
+ax5.set_ylabel(r'$\sigma$ [-]')
+ax5.grid()
+
+plt.tight_layout()
 
 #affichage du temps écoulé
 t1 = datetime.now()

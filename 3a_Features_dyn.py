@@ -4,8 +4,8 @@ Created on Wed Feb 19 08:36:44 2020
 
 @author: dominiqu.voide
 
-Création d'un fichier de features et label pouvant être utilisé pour le 
-machine learning
+Création d'un fichier de features et labels pouvant être utilisé pour le 
+machine learning fichier modifié pour les mesures dynamiques
 """
 
 import numpy as np
@@ -17,19 +17,16 @@ from datetime import datetime
 
 # Paramètres
 #############################################################################
-
-filename = '1s_sample_0s_ti'  # fichier sample a ouvrir
-
-
 Fs = 40000  # fréquence d'acquisition
 fftstart = 20  # valeurs de fréquence à négliger au début
 fCDF = np.arange(0, 21000, 1000)  # fréquences à analyser pour la CDF
 
-datatype = 'Micro'
-
+datatype = 'Micro' # choix du capteur
+mesure = 'Dyn_03' # nom pour l'enregistrement
 #############################################################################
 
 t0 = datetime.now() 
+filename = mesure +'_1s_sample_0s_ti'  # mesure dynamique
 
 # read pickle file
 infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
@@ -39,8 +36,7 @@ sample = df[datatype] # choix du vecteur à analyser
 
 
 #initialisation des listes et dictionnaires
-cavit = []      # vecteur CDF cavitant
-no_cavit = []   # vecteur CDF non cavitant
+
 data = {}       # dict des features CDF aux fréquences fCDF
 argxf = []      # index des fCDF sur le vecteur xf
 x_feature = []  # vecteur x pour ploter les features fCDF
@@ -86,7 +82,8 @@ for i in range(len(fCDF)):
 
 def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
     """
-
+    Réalisation de la CDF de l'échantillon
+    
     Parameters
     ----------
     array : array
@@ -104,7 +101,7 @@ def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
 
     Returns
     -------
-    None.
+    Vecteur de la CDF
 
     """
    
@@ -120,6 +117,8 @@ def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
     
     ########################################################################
     # CDF
+    
+    # normalisation des valeurs
     cumsum = np.cumsum(yf)
     sumyf = sum(yf)
     cumsumNorm = cumsum/sumyf
@@ -147,7 +146,7 @@ y = df.Cavit
 # sauvegarde en pickle
 g = open('Datas\\Pickle\\Features\\Features_' + datatype
          + '_' + filename + '.pckl', 'wb')
-pickle.dump((X, y), g)
+pickle.dump((X,y), g)
 g.close()
 
 #affichage du temps écoulé

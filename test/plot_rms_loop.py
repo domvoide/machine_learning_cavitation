@@ -24,28 +24,31 @@ infile.close()
 cavit = []
 no_cavit = []
 
-fig = plt.figure(figsize=(10,6))  # création figure
-
+fig = plt.figure(figsize=(5,3))  # création figure
+ax = fig.add_subplot(211)
 # Boucle pour plotter toutes les variances
 for i in range(len(df.Micro)):
     if df.Cavit[i] == 0:
         c = 'b'
         y = 0
         rms = np.sqrt(sum(n*n for n in df.Micro[i])/len(df.Micro[i]))
-        plt.scatter(rms, y, color=c)
+        ax.scatter(rms, y, color=c)
         no_cavit.append(rms)
     else:
         c = 'r'
         y = 1
         rms = np.sqrt(sum(n*n for n in df.Micro[i])/len(df.Micro[i]))
-        plt.scatter(rms, y, color=c)
+        ax.scatter(rms, y, color=c)
         cavit.append(rms)
     
 # Mise en forme du graphique
-plt.text(1.1, 0.8, 'Red : cavitation\nBlue : no cavitation\nx : mean', fontsize = 15)
-plt.xlabel('Root mean square [-]')
-plt.ylabel('Cavitation [-]')
-plt.title('RMS')
+ax.set_ylim(-0.5,1.5)
+ax.set_yticks((0, 1))
+ax.set_yticklabels(('non', 'oui'), rotation='vertical')
+ax.set_xlabel('Root mean square [-]')
+ax.set_ylabel('Cavitation')
+
+
 # moyenne des variances par label
 mean_no_cavit = np.mean(no_cavit)
 mean_cavit = np.mean(cavit)

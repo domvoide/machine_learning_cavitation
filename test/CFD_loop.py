@@ -14,7 +14,7 @@ from datetime import datetime
 
 # Paramètres
 #############################################################################
-datatype = 'Uni_Y'  # modifier aussi ligne 57
+datatype = 'Micro'  # modifier aussi ligne 57
 #############################################################################
 
 t0 = datetime.now() 
@@ -54,7 +54,7 @@ infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-sample = df.Uni_Y  # feature à analyser
+sample = df[datatype] # feature à analyser
 
 #initialisation des listes et dictionnaires
 cavit = []      # vecteur CDF cavitant
@@ -78,7 +78,7 @@ for i in range(len(fCDF)):
 
 # création de la figure
 fig = plt.figure(figsize=(10,6))
-plt.title('CDF ' + datatype)
+# plt.title('CDF ' + datatype)
 plt.grid()
 plt.minorticks_on()
 
@@ -148,8 +148,8 @@ for i in range(len(sample)):
     plotCDF(i, c)
 
 # légende et labels pour le graphe
-plt.text(12500, 0.1, 'Red : cavitation par poche\nBlue : no cavitation\nX : features',
-         fontsize = 15)
+# plt.text(12500, 0.1, 'Red : cavitation par poche\nBlue : no cavitation\nX : features',
+#          fontsize = 15)
 plt.xlabel('Frequencies [Hz]')
 plt.ylabel('CDF [-]')
 
@@ -166,14 +166,14 @@ for j in range(len(no_cavit)):
 meannocavit = sumnocavit / len(no_cavit) 
 
 # plot des courbes moyennes
-plt.plot(xf, meancavit , color='black')
-plt.plot(xf, meannocavit , color='black')
+# plt.plot(xf, meancavit , color='black')
+# plt.plot(xf, meannocavit , color='black')
 
 # plot des features
-for j in range(len(fCDF)):
-    x_feature.append(np.full(len(data[fCDF[j]]), xf[argxf[j]]))
-    plt.scatter(x_feature[j], data[fCDF[j]], color='black', marker='x', s=50,
-            zorder=3)
+# for j in range(len(fCDF)):
+#     x_feature.append(np.full(len(data[fCDF[j]]), xf[argxf[j]]))
+#     plt.scatter(x_feature[j], data[fCDF[j]], color='black', marker='x', s=50,
+#             zorder=3)
 
 #affichage du temps écoulé
 t1 = datetime.now()

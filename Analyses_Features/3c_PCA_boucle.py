@@ -69,7 +69,8 @@ infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-color=plt.cm.tab10(np.linspace(0,1,9))
+color1=plt.cm.tab20(np.linspace(0,0.5,10))
+color2=plt.cm.tab20(np.linspace(0.5,1,10))
 
 for name in capteurs:    
     #########################################################################
@@ -238,12 +239,27 @@ for name in capteurs:
     ax3 = fig.add_subplot(223)
     ax3.title.set_text('First two main components')
     lenptfct = int(len(X)/18)
-    for i,c in zip(range(0, int(len(df.Alpha)/2), lenptfct), color):
-        ax3.scatter(X[i:i+lenptfct, 0], X[i:i+lenptfct, 1],c=c, marker='x',
-                   label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
-    for i,c in zip(range(int(len(df.Alpha)/2), len(df.Alpha), lenptfct), color):
-        ax3.scatter(X[i:i+lenptfct, 0], X[i:i+lenptfct, 1], edgecolors=c, marker='o',
-                   facecolors='none', label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
+    for i,c in zip(range(0, int(len(df.Alpha)/2), lenptfct), color1):
+        if df.Cavit[i] == 0:
+            mkr = 'x'
+            face = c
+        else: 
+            mkr = 'o'
+            face ='none'
+        ax3.scatter(X[i:i+lenptfct, 0], X[i:i+lenptfct, 1], edgecolors=c, 
+               marker=mkr, s=75,
+               facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
+        
+    for i,c in zip(range(int(len(df.Alpha)/2), len(df.Alpha), lenptfct), color2):
+        if df.Cavit[i] == 0:
+            mkr = 'x'
+            face = c
+        else: 
+            mkr = 'o'
+            face ='none'
+        ax3.scatter(X[i:i+lenptfct, 0], X[i:i+lenptfct, 1], edgecolors=c, 
+               marker=mkr, s=75,
+               facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
     
     ax3.legend(loc='best', ncol=2)
     
@@ -285,32 +301,55 @@ for name in capteurs:
     plt.show()
     fig.clf()
 
-fig = plt.figure(3, figsize=(20, 6.5))
-ax5 = fig.add_subplot(121)
+fig = plt.figure(3, figsize=(10, 6))
+ax = fig.add_subplot(111)
+
 
 lenptfct = int(len(df.Alpha)/18)
-for i,c in zip(range(0, int(len(df.Alpha)/2), lenptfct), color):
-    ax5.scatter(df.Alpha[i:i+lenptfct], df.Sigma[i:i+lenptfct],c=c, marker='x',
-               label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
-for i,c in zip(range(int(len(df.Alpha)/2), len(df.Alpha), lenptfct), color):
-    ax5.scatter(df.Alpha[i:i+lenptfct], df.Sigma[i:i+lenptfct],edgecolors=c, marker='o',
-               facecolors='none', label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
+for i,c in zip(range(0, int(len(df.Alpha)/2), lenptfct), color1):
+    if df.Cavit[i] == 0:
+        mkr = 'x'
+        face = c
+    else: 
+        mkr = 'o'
+        face ='none'
 
-ax5.legend(loc='best', ncol=2, )
-ax5.set_xlabel(r'$\alpha$ [°]')
-ax5.set_ylabel(r'$\sigma$ [-]')
-ax5.grid()
+    ax.scatter(df.Alpha[i:i+lenptfct], df.Sigma[i:i+lenptfct],edgecolors=c, 
+               marker=mkr, s=75,
+               facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
+for i,c in zip(range(int(len(df.Alpha)/2), len(df.Alpha), lenptfct), color2):
+    if df.Cavit[i] == 0:
+        mkr = 'x'
+        face = c
+    else: 
+        mkr = 'o'
+        face ='none'
+
+    ax.scatter(df.Alpha[i:i+lenptfct], df.Sigma[i:i+lenptfct],edgecolors=c, 
+               marker=mkr, s=75,
+               facecolors=face, label= 'Pt : ' + str(int((i+lenptfct)/lenptfct)))
 
 
+a = np.arange(1 , 16, 1)
+b = 0.003 * a ** 3 - 0.035*a**2 + 0.6231*a + 0.8694
+ac = np.arange(7, 11, 1)
+c = 0.125 * ac**2 -2.975 * ac + 19.225
+d = 0.0833 * a + 1
+ax.plot(a, b, ac, c, a, d, c='k')
 
-ax6 = fig.add_subplot(122)
-scatter = ax6.scatter(df.Alpha, df.Sigma, c=df.Cavit, cmap='bwr')
-legend1 = ax6.legend(*scatter.legend_elements(),
-                    loc="upper left", title="Cavitation")
-ax6.add_artist(legend1)
-ax6.set_xlabel(r'$\alpha$ [°]')
-ax6.set_ylabel(r'$\sigma$ [-]')
-ax6.grid()
+ax.text(6.5, 6.5,r'$Cp_{min}$', fontsize=14, 
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax.text(2.75, 1.65,'Bubble Cavitation', fontsize=14, rotation=10,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax.text(11, 5.5,'Pocket Cavitation', fontsize=14,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+ax.text(7, 0.85,'Supercavitation', fontsize=14, rotation=3,
+        bbox=dict(boxstyle='round', alpha=0.5, facecolor='white'))
+
+ax.legend(loc='best', ncol=2, )
+ax.set_xlabel(r'$\alpha$ [°]')
+ax.set_ylabel(r'$\sigma$ [-]')
+ax.grid()
 
 plt.tight_layout()
 

@@ -5,7 +5,7 @@ Created on Thu Feb 27 15:12:24 2020
 @author: voide
 
 Algorithme de machine learning kNN
-Entrainement et test sur les données statiques
+Entrainement du kNN et sauvegarde en pickle
 """
 
 import pickle
@@ -20,7 +20,6 @@ from datetime import datetime
 # Paramètres
 #############################################################################
 filename = 'Micro_1s_sample_0s_ti'  # fichier conteant les features d'apprentissage
-ti = 0.1    # durée de recouvrement en secondes (pas entre chaque échantillon)
 #############################################################################
 
 t0 = datetime.now() 
@@ -40,24 +39,9 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 # stratify = y pour avoir le même poucentage de label que les sets
 
 kmax = int(np.sqrt(len(y)))  # nombre de voisin maximal à tester 
-# création de dictionnaire pour quantifier l'erreur des différents types de mesures
-euclid = {'k': [], 'errortrain': [], 'errortest': []}   # mesure la plus direct entre deux points
-manathan = {'k': [], 'errortrain': [], 'errortest': []}     # mesure par quadrillage (distance la plus longue)
 
 # création du modèle kNN
 knn = KNeighborsClassifier(n_neighbors=int(kmax)) # p = 1 for manhattan distance
-print('Facteur k = ' + str(kmax) + ' et distance euclidienne')
-
-# Train the model using the training sets
-knn.fit(X_train, y_train)
-errortrain = 1 - knn.score(X_train, y_train)  # calcul de l'erreur d'entrainement
-y_pred = knn.predict(X_test) # test de prédiction
-errortest = 1 - knn.score(X_test, y_test) # calcul de l'erreur de test
-
-# affichage des résultats
-print('Erreur train: %f' % errortrain)
-print('Erreur test: %f' % errortest)
-print("Accuracy:" + str(metrics.accuracy_score(y_test, y_pred)))
 
 # boucle  pour tester l'erreur en fonction du nombre de voisin 2 à kmax
 # et du type de mesure (euclidienne ou manhattan)
@@ -76,15 +60,19 @@ plt.xlabel('Number of neighbors')
 plt.ylabel('Error')
 plt.show()
 # choix du nombre de voisin optimal
-knn = neighbors.KNeighborsClassifier(indexmin)
+
 print('Facteur k choisi : ' + str(indexmin))
 print('Min erreur train: ' + str(min(errorstrain)))
 print('Erreur test avec k choisi: ' + str(min(errorstest)))
 
+#entrainement du modèle avec les paramètres optimaux pour sauvegarde
+KNN = neighbors.KNeighborsClassifier(n_neighbors=k, p=2).fit(X_train, y_train)
+
+# sauvegarde du modèle
 knnPickle = open('Datas\\Pickle\\kNN\\kNN_' + filename + '.pckl', 'wb') 
 
 # source, destination 
-pickle.dump(knn, knnPickle) 
+pickle.dump(KNN, knnPickle) 
 
 #affichage du temps écoulé
 t1 = datetime.now()

@@ -16,9 +16,9 @@ from datetime import datetime
 
 t0 = datetime.now()
 
-filename = 'Short_1s_sample_0.9s_step'
+filename = '1s_sample_0s_ti'
 # read pickle file
-infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
+infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 

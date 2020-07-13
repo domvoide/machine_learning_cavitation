@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 
 # Paramètres
 #############################################################################
-datatype = 'Uni'  # modifier aussi ligne 57
+datatype = 'Uni_Y'  # modifier aussi ligne 57
 #############################################################################
 
 t0 = datetime.now() 
@@ -24,7 +24,7 @@ infile = open('..\\Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
-sample = df.Uni
+sample = df[datatype]
 
 cavit = []
 no_cavit = []
