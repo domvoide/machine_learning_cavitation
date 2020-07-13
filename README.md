@@ -9,4 +9,4 @@ Fichiers principaux pour la réalisation de prédiction de cavitation sur le mac
 5_predict_stat : Prédiction à l'aide du modèle précédement entraîné
 
 Différentes versions sont présentes pour faciliter le passage aux données dynamiques
-Les dossiers contiennent différentes versions de fichiers utilisés pour créer les graphes et les différentes essais pendant le projet 
+Les dossiers contiennent différentes versions de fichiers utilisés pour créer les graphes et les différents essais pendant le projet 
