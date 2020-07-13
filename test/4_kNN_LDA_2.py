@@ -5,7 +5,6 @@ Created on Thu Feb 27 15:12:24 2020
 @author: voide
 
 Algorithme de machine learning kNN
-Entrainement et test sur les données statiques
 """
 
 import pickle
@@ -14,12 +13,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import metrics
 from sklearn import neighbors
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from matplotlib import pyplot as plt
 from datetime import datetime
 
 # Paramètres
 #############################################################################
-filename = 'Micro_1s_sample_0s_ti'  # fichier conteant les features d'apprentissage
+filename = 'Features_Micro_1s_sample_0s_ti'  # fichier conteant les features d'apprentissage
 ti = 0.1    # durée de recouvrement en secondes (pas entre chaque échantillon)
 #############################################################################
 
@@ -28,14 +28,14 @@ t0 = datetime.now()
 # importation des features et des labels
 
 # read pickle file
-infile = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'rb')
+infile = open('Datas\\Pickle\\Features\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
 
 X = df[0]   # matrice X contenant les features
 y = df[1]   # vecteur y conteant les lables
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
 # 70% training and 30% test, random_state pour avoir toujours les mêmes données en train,
 # stratify = y pour avoir le même poucentage de label que les sets
 
@@ -54,37 +54,15 @@ errortrain = 1 - knn.score(X_train, y_train)  # calcul de l'erreur d'entrainemen
 y_pred = knn.predict(X_test) # test de prédiction
 errortest = 1 - knn.score(X_test, y_test) # calcul de l'erreur de test
 
-# affichage des résultats
-print('Erreur train: %f' % errortrain)
-print('Erreur test: %f' % errortest)
-print("Accuracy:" + str(metrics.accuracy_score(y_test, y_pred)))
+print('Pourcentage d\'erreur : ' + str(errortest))
 
-# boucle  pour tester l'erreur en fonction du nombre de voisin 2 à kmax
-# et du type de mesure (euclidienne ou manhattan)
-errorstrain = []
-errorstest = []
-print('\nMesure distance Euclidienne')
-for k in range(2, kmax):
-    knn = neighbors.KNeighborsClassifier(n_neighbors=k, p=2)
-    errorstrain.append(1 - knn.fit(X_train, y_train).score(X_train, y_train))
-    errorstest.append(1 - knn.fit(X_train, y_train).score(X_test, y_test))
-indexmin = errorstest.index(min(errorstest)) + 2
-Errormintrain = min(errorstrain)
-Errormintest = min(errorstest)
-plt.plot(range(2, kmax), errorstest, 'o-')
-plt.xlabel('Number of neighbors')
-plt.ylabel('Error')
-plt.show()
-# choix du nombre de voisin optimal
-knn = neighbors.KNeighborsClassifier(indexmin)
-print('Facteur k choisi : ' + str(indexmin))
-print('Min erreur train: ' + str(min(errorstrain)))
-print('Erreur test avec k choisi: ' + str(min(errorstest)))
+clf = LinearDiscriminantAnalysis()
+clf.fit(X, y)
+X_New = clf.fit_transform(X,y)
 
-knnPickle = open('Datas\\Pickle\\kNN\\kNN_' + filename + '.pckl', 'wb') 
-
-# source, destination 
-pickle.dump(knn, knnPickle) 
+knn_new = KNeighborsClassifier(n_neighbors=3)
+knn_new.fit(X,y)
+errortrain_new = 1 - knn_new.score(X, y)
 
 #affichage du temps écoulé
 t1 = datetime.now()

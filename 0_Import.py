@@ -16,18 +16,18 @@ import sounddevice as sd
 import numpy as np
 import pandas as pd
 
-# Paramètres
+# Paramètres à modifier
 #############################################################################
 cavitation = 0  # 0 pour non et 1 pour oui
 alpha = 6
 sigma = 4.4
-
+# Mettre le chemin d'accès des 3 fichiers de la même mesure
 path1 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1044_001.tdms'
 path2 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1044_002.tdms'
 path3 = 'Datas\\No_cavitation\\Sigma4p4\\Mesures_Turbicav_AE_RMS_pressure_strain_geo_alpha6_40kHz_19-12-04_1045_003.tdms'
 #############################################################################
 
-Name = 'Alpha_' + str(alpha) + '_Sigma_' + str(sigma) # nom du fichier pour enregistremen pickle
+Name = 'Alpha_' + str(alpha) + '_Sigma_' + str(sigma) # nom du fichier pour enregistrement pickle
 paths = [path1, path2, path3]
 # création des dictionnaire pour chaque vecteur
 properties, names, time,  acc_X, acc_Y, acc_Z, micro, uni, hydro, brut = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
@@ -78,7 +78,7 @@ Uni = np.append(Uni, uni[2])
 
 Time = np.linspace(0, 60, num=2400000)
 
-# enregistrement sous forme de dictionnaire pickle
+# enregistrement sous forme de dictionnaire 
 data = {'Names': Name,
         'Alpha': alpha,
         'Sigma': sigma,
@@ -92,7 +92,7 @@ data = {'Names': Name,
         'Brut': Brut,
         'Cavit': cavitation}
 
-# enregistrement du dictionnaire (plus compact que les dataframes)
+# enregistrement du dictionnaire  en pickle (plus compact que les dataframes)
 f = open('Datas\\Pickle\\df\\' + str(Name) + '_df.pckl', 'wb')
 pickle.dump(df, f)
 f.close()

@@ -15,19 +15,24 @@ import pickle
 import pandas as pd
 from datetime import datetime
 
-# Paramètres
+# Paramètres à modifier
 #############################################################################
 filename = 'all_data'
 #############################################################################
 
 t0 = datetime.now()
-folder_path = 'C:\\Users\\voide\\Documents\\Master\\Machine Learning\\Datas\\Pickle\\dic'
+
+# dossier où tous les précédents fichiers ont été importé avec le fichier 0_Import
+folder_path = 'C:\\Users\\voide\\Documents\\GitHub\\machine_Learning_cavitation\\Datas\\Pickle\\dic'
 listdir = []
 j = 0
 buf = []
+
+# création de la liste de tous les fichiers contenu dans le dossier
 for i in os.listdir(folder_path):
     listdir.append(i)
 
+# extraction des valeurs sous forme de dictionnaire pour chaque fichier
 len_files = len(listdir)
 Data = {}
 for j in range(len_files):
@@ -37,6 +42,7 @@ for j in range(len_files):
     buf = None
     print('Load files : ' + str(listdir[j]))
 
+# mise en dataframe et enregistrement en pickle
 df = pd.DataFrame(Data)
 f = open('Datas\\Pickle\\' + filename + '.pckl', 'wb')
 pickle.dump(df, f)

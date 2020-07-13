@@ -16,12 +16,12 @@ from datetime import datetime
 # Paramètres
 #############################################################################
 dt = 1      # durée de l'échantillon en secondes
-ti = 0.1   # durée de recouvrement en secondes (pas entre chaque échantillon)
+ti = 0    # durée de recouvrement en secondes (pas entre chaque échantillon)
 #############################################################################
 
 t0 = datetime.now()
 # importation du pickle contenant les 18 fichiers de données
-folder_path = 'Datas\\Pickle\\all_data.pckl'
+folder_path = 'Datas\\Pickle\\Centrale.pckl'
 buf = io.open(folder_path, 'rb', buffering=(128 * 2048))
 df = pickle.load(buf)
 buf.close()
@@ -29,7 +29,7 @@ del buf
 df = df.transpose()
 
 # Acquisition de la fréquence
-f = round(1 / (df.Time[0][1]-df.Time[0][0]), 1)
+f = 10000
 
 # Création d'un dictionnaire vide pour les échantillons d'analyses
 data = {'Alpha': [],
@@ -99,10 +99,10 @@ del df  # suppression de la variable df
 df = pd.DataFrame(data)
 
 # enregistrement en pickle
-# g = open('Datas\\Pickle\\Sampling\\' + str(dt) + 's_sample_' + str(ti) +
-#           's_ti.pckl', 'wb')
-# pickle.dump(df, g)
-# g.close()
+g = open('Datas\\Pickle\\Sampling\\' + str(dt) + 's_sample_' + str(ti) +
+         's_ti.pckl', 'wb')
+pickle.dump(df, g)
+g.close()
 
 # Contrôle que tous les échantillons soient bien de la même taille
 lenmicro = []   
