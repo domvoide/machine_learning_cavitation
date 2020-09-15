@@ -76,7 +76,7 @@ plt.xlabel('Number of neighbors')
 plt.ylabel('Error')
 plt.show()
 # choix du nombre de voisin optimal
-knn = neighbors.KNeighborsClassifier(indexmin)
+knn = neighbors.KNeighborsClassifier(indexmin).fit(X_train,y_train)
 print('Facteur k choisi : ' + str(indexmin))
 print('Min erreur train: ' + str(min(errorstrain)))
 print('Erreur test avec k choisi: ' + str(min(errorstest)))
