@@ -1,4 +1,3 @@
-
 """
 Created on Wed Feb 20 13:42:05 2020
 
@@ -43,10 +42,10 @@ for j in range(len_files):
     print('Load files : ' + str(listdir[j]))
 
 # mise en dataframe et enregistrement en pickle
-df = pd.DataFrame(Data)
-f = open('Datas\\Pickle\\' + filename + '.pckl', 'wb')
-pickle.dump(df, f)
-f.close()
+# df = pd.DataFrame(Data)
+# f = open('Datas\\Pickle\\' + filename + '.pckl', 'wb')
+# pickle.dump(df, f)
+# f.close()
 
 #affichage du temps écoulé
 t1 = datetime.now()

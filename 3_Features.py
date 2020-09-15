@@ -3,115 +3,151 @@
 Created on Wed Feb 19 08:36:44 2020
 
 @author: dominiqu.voide
+
+Création d'un fichier de features et labels pouvant être utilisé pour le 
+machine learning fichier modifié pour les mesures dynamiques
 """
 
 import numpy as np
-from math import sqrt
 import statistics
 import pickle
 import pandas as pd
 from scipy import signal
-from scipy import stats
 from datetime import datetime
 
-t0 = datetime.now()
-filename = 'Short_1s_sample_0.9s_step'
+# Paramètres
+#############################################################################
+Fs = 40000  # fréquence d'acquisition
+fftstart = 20  # valeurs de fréquence à négliger au début
+fCDF = np.arange(0, 21000, 1000)  # fréquences à analyser pour la CDF
+
+datatype = 'Micro' # choix du capteur
+#############################################################################
+
+t0 = datetime.now() 
+filename = '1s_sample_0.1s_ti'  # mesure dynamique
+
 # read pickle file
 infile = open('Datas\\Pickle\\Sampling\\' + filename + '.pckl', 'rb')
 df = pickle.load(infile)
 infile.close()
+sample = df[datatype] # choix du vecteur à analyser
 
 
-def rms(audio):
-    return sqrt(sum(n*n for n in audio)/len(audio))
+#initialisation des listes et dictionnaires
+
+data = {}       # dict des features CDF aux fréquences fCDF
+argxf = []      # index des fCDF sur le vecteur xf
+x_feature = []  # vecteur x pour ploter les features fCDF
+for key in fCDF:
+    data[key] = []
 
 
-def variance(audio):
-    return statistics.variance(audio)
+# calcul du vecteur xf et de la longeur de la fft NFFT
+L = len(sample[0])
+NFFT = int(2 ** np.ceil(np.log2(abs(L))))
+T = 1.0 / Fs
+xf = np.linspace(0.0, 1.0/(2.0*T), NFFT//2)
+xf = xf[fftstart:]
+
+def find_nearest(array, value):
+    """
+    Trouve la valeur et l'index la plus proche d'une valeur 
+    choisie dans un vecteur
+
+    Parameters
+    ----------
+    array : array
+        vecteur où trouver la valeur.
+    value : int
+        valeur à trouver.
+
+    Returns
+    -------
+    TYPE
+        DESCRIPTION.
+    idx : TYPE
+        DESCRIPTION.
+
+    """
+    n = [abs(i-value) for i in array]
+    idx = n.index(min(n))
+    return array[idx], idx
+
+# trouver la valeure xf la plus proche des fréquences fCDF
+for i in range(len(fCDF)):
+    argxf.append(find_nearest(xf,fCDF[i])[1])
 
 
-def maxPSD(audio):
-    freqs, psd = signal.welch(audio)
-    maxPSD = max(psd)
-    return maxPSD
-
-def maxCDF(audio):
-    # cdf = stats.norm.cdf(audio)
-    maxCDF = max(audio)
-    return maxCDF
-
-
-def fftfreq(audio, Fs):
-    L = len(audio)
-    NFFT = int(2 ** np.ceil(np.log2(abs(L))))
-    freq = Fs / 2 * np.linspace(0, 1, NFFT//2)
-
-    yf = np.fft.fft(audio, NFFT)/L
-    amp = 2 * abs(yf[1:NFFT//2+1])
+def cdf(array, Fs=Fs, L=L, NFFT=NFFT, T=T, xf=xf):
+    """
+    Réalisation de la CDF de l'échantillon
     
-    # Déterminer les 10 peaks les plus importants
-    freqmax_index = abs(np.argsort(-amp[100:NFFT//2])[:10]) # néglige les fréquences en dessous de 100 Hz
-    freqmax = np.sort(freq[freqmax_index])[::-1]
-    return freqmax
+    Parameters
+    ----------
+    array : array
+        vecteur brut.
+    Fs : int, optional
+        Fréquence d'acquisition. The default is Fs.
+    L : int, optional
+        Longueur fichier. The default is L.
+    NFFT : int, optional
+        Puissance de 2 supérieur à L. The default is NFFT.
+    T : float, optional
+        période (1/Fs). The default is T.
+    xf : array of float64, optional
+        Vecteur x pour la fft et la CDF. The default is xf.
+
+    Returns
+    -------
+    Vecteur de la CDF
+
+    """
+   
+    ########################################################################
+    # fft
+    
+    yf = np.fft.fft(array, NFFT)/L
+    yf = 2*abs(yf[:NFFT//2])
+    
+    # on néglige les x premières fréquences
+    yf = yf[fftstart:]
+    
+    
+    ########################################################################
+    # CDF
+    
+    # normalisation des valeurs
+    cumsum = np.cumsum(yf)
+    sumyf = sum(yf)
+    cumsumNorm = cumsum/sumyf
+    
+    CDFa = []
+    for j in range(len(fCDF)):
+        CDFa.append(cumsumNorm[argxf[j]])
+
+    return CDFa
 
 
-RMS = []
-var = []
-PSD = []
 CDF = []
-fft0 = []
-fft1 = []
-fft2 = []
-fft3 = []
-fft4 = []
-fft5 = []
-fft6 = []
-fft7 = []
-fft8 = []
-fft9 = []
-
-Fs = 40000  # Fréquence
 
 
-for i in range(len(df.Micro)):
-    RMS.append(rms(df.Micro[i]))
-    var.append(variance(df.Micro[i]))
-    PSD.append(maxPSD(df.Micro[i]))
-    CDF.append(maxCDF(df.Micro[i]))
-    fft_mat = fftfreq(df.Micro[i], Fs)
-    fft0.append(fft_mat[0])
-    fft1.append(fft_mat[1])
-    fft2.append(fft_mat[2])
-    fft3.append(fft_mat[3])
-    fft4.append(fft_mat[4])
-    fft5.append(fft_mat[5])
-    fft6.append(fft_mat[6])
-    fft7.append(fft_mat[7])
-    fft8.append(fft_mat[8])
-    fft9.append(fft_mat[9])
+# boucle pour traiter tous les fichiers
+for i in range(len(sample)):
+    CDF.append(cdf(sample[i]))
 
-data = {'RMS': RMS,
-        'Var': var,
-        'PSD': PSD,
-        'CDF': CDF,
-        'fft0': fft0,
-        'fft1': fft1,
-        'fft2': fft2,
-        'fft3': fft3,
-        'fft4': fft4,
-        'fft5': fft5,
-        'fft6': fft6,
-        'fft7': fft7,
-        'fft8': fft8,
-        'fft9': fft9
-        }
 
-X = pd.DataFrame(data)
+
+# création des vecteurs X et y
+X = pd.DataFrame(CDF)
 y = df.Cavit
 
-g = open('Datas\\Pickle\\Features\\Features_' + filename + '.pckl', 'wb')
-pickle.dump((X, y), g)
+# sauvegarde en pickle
+g = open('Datas\\Pickle\\Features\\Features_' + datatype
+         + '_' + filename + '.pckl', 'wb')
+pickle.dump((X,y), g)
 g.close()
+
+#affichage du temps écoulé
 t1 = datetime.now()
-deltat = (t1 - t0)
-print('Temps écoulé : ' + str(deltat))
+print('Temps écoulé : ' + str(t1-t0) + ' [h:m:s]')

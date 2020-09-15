@@ -8,6 +8,7 @@ Importation des différents fichiers tdms fournis par François Pedroni
 Il y a 3 fichiers par point de fonctionnement qu'il faut renseigner en path 1,2,3
 il faut également renseigner le sigma et alpha du point et le label de cavitaiton
 
+Si nécessaire installer le package nptdms via commande --> pip install nptdms dans le terminal
 """
 
 from nptdms import TdmsFile
@@ -93,9 +94,9 @@ data = {'Names': Name,
         'Cavit': cavitation}
 
 # enregistrement du dictionnaire  en pickle (plus compact que les dataframes)
-f = open('Datas\\Pickle\\df\\' + str(Name) + '_df.pckl', 'wb')
-pickle.dump(df, f)
-f.close()
+# f = open('Datas\\Pickle\\df\\' + str(Name) + '_df.pckl', 'wb')
+# pickle.dump(df, f)
+# f.close()
 
 # fonction pour tester les fichier audios
 def sound(track):
